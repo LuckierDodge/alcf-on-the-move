@@ -39,7 +39,7 @@ class Dimensions {
   }
 }
 
-@JsonSerializable
+@JsonSerializable()
 class NodeInfo {
   String id;
   String state;
@@ -97,7 +97,7 @@ class RunningJob {
   factory RunningJob.fromJson(Map<String, dynamic> json) => _$RunningJobFromJson(json);
 }
 
-@JsonSerializable
+@JsonSerializable()
 class Reservation {
   num duration;
   String durationf;
