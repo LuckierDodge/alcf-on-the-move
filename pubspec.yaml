@@ -27,10 +27,15 @@ dependencies:
   # Project Specific Dependencies
   flutter_circular_chart: ^0.1.0
   http: ^0.12.0+2
+  json_annotation: ^2.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  # Project Specific Dev Dependencies
+  build_runner: ^1.0.0
+  json_serializable: ^2.0.0
 
 
 # For information on the generic Dart part of this file, see the
