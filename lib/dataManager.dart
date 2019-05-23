@@ -15,35 +15,10 @@ class Activity {
 
   Activity({this.dimensions, this.nodeInfo, this.queuedJobs, this.runningJobs, this.reservations, this.updated});
 
-  factory Activity.fromJson(Map<String, dynamic> json) {
-    Set<NodeInfo> nodeInfo;
-    Set<QueuedJob> queuedJobs;
-    Set<RunningJob> runningJobs;
-    Set<Reservation> reservations;
-
-    Map<String, dynamic> nodeInfoMap = jsonDecode(json['nodeinfo']);
-    nodeInfoMap.forEach((id, node) => nodeInfo.add(NodeInfo(id, node)));
-
-    Map<String, dynamic> queuedJobsMap = jsonDecode(json['queued']);
-    queuedJobsMap.forEach((id, job) => queuedJobs.add(QueuedJob.fromJson(job)));
-
-    Map<String, dynamic> runningJobsMap = jsonDecode(json['running']);
-    runningJobsMap.forEach((id, job) => runningJobs.add(RunningJob.fromJson(node)));
-
-    Map<String, dynamic> reservationMap = jsonDecode(json['running']);
-    reservationMap.forEach((id, reservation) => reservations.add(Reservation.fromJson(reservation)));
-
-    return Activity(
-      dimensions: Dimensions.fromJson(json['dimensions']),
-      nodeInfo: nodeInfo,
-      queuedJobs: queuedJobs,
-      runningJobs: runningJobs,
-      reservations: reservations,
-      updated: json['updated'],
-    );
-  }
+  factory Activity.fromJson(Map<String, dynamic> json) => _$ActivityFromJson(json);
 }
 
+@JsonSerializable()
 class Dimensions {
   final int midplanes;
   final int nodecards;
@@ -64,25 +39,19 @@ class Dimensions {
   }
 }
 
+@JsonSerializable
 class NodeInfo {
   String id;
   String state;
   String color;
   String jobid;
 
-  //NodeInfo({this.id, this.state, this.color, this.jobid});
+  NodeInfo({this.id, this.state, this.color, this.jobid});
 
-  NodeInfo(String id, Map<String, dynamic> node) {
-    this.id = id;
-    var state = jsonDecode(node['state']);
-    state.runtimeType() == String ? this.state = state : this.state = "";
-    var color = jsonDecode(node['color']);
-    color.runtimeType() == String ? this.color = state : this.color = "";
-    var jobid = jsonDecode(node['jobid']);
-    jobid.runtimeType() == String ? this.jobid = state : this.jobid = "";
-  }
+  factory NodeInfo.fromJson(Map<String, dynamic> json) => _$NodeInfoFromJson(json);
 }
 
+@JsonSerializable()
 class QueuedJob {
   num jobid;
   String mode;
@@ -101,38 +70,34 @@ class QueuedJob {
       this.queuedtimef, this.score, this.starttime, this.state, this.submittime,
       this.walltime, this.walltimef});
 
-  factory QueuedJob.fromJson(Map<String, dynamic> json) {
-    return QueuedJob(
-      jobid: json['jobid'],
-      mode: json['mode'],
-      nodes: json['nodes'],
-      project: json['project'],
-      queue: json['queue'],
-      queuedtimef: json['queuedtimef'],
-      score: json['score'],
-      starttime: json['starttime'],
-      state: json['state'],
-      submittime: json['submittime'],
-      walltime: json['walltime'],
-      walltimef: json['walltimef'],
-    );
-  }
+  factory QueuedJob.fromJson(Map<String, dynamic> json) => _$QueuedJobFromJson(json);
 }
 
+@JsonSerializable()
 class RunningJob {
   String color;
   num jobid;
+  List<String> location;
+  String mode;
+  num nodes;
+  String project;
+  String queue;
+  String runtimef;
+  String starttime;
+  String state;
+  num submittime;
+  num walltime;
+  String walltimef;
 
 
-  RunningJob({});
+  RunningJob(this.color, this.jobid, this.location, this.mode, this.nodes,
+      this.project, this.queue, this.runtimef, this.starttime, this.state,
+      this.submittime, this.walltime, this.walltimef);
 
-  factory RunningJob.fromJson(Map<String, dynamic> json) {
-    return RunningJob(
-
-    );
-  }
+  factory RunningJob.fromJson(Map<String, dynamic> json) => _$RunningJobFromJson(json);
 }
 
+@JsonSerializable
 class Reservation {
   num duration;
   String durationf;
@@ -145,17 +110,7 @@ class Reservation {
   Reservation({this.duration, this.durationf, this.name, this.queue, this.start,
     this.startf, this.tminus});
 
-  factory Reservation.fromJson(Map<String, dynamic> json) {
-    return Reservation(
-      duration: json['duration'],
-      durationf: json['durationf'],
-      name: json['name'],
-      queue: json['queue'],
-      start: json['start'],
-      startf: json['startf'],
-      tminus: json['tminus'],
-    );
-  }
+  factory Reservation.fromJson(Map<String, dynamic> json) => _$ReservationFromJson(json);
 }
 
 
