@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
+import 'dataManager.dart';
+
+var machineNames = ["Mira", "Cetus", "Vesta", "Cooley", "Theta"];
+Map<String, Activity> machineActivity;
 
 void main() => runApp(MyApp());
 
@@ -24,13 +28,6 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  final List<String> machineNames = [
-    "Mira",
-    "Cetus",
-    "Vesta",
-    "Cooley",
-    "Theta"
-  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,16 +42,36 @@ class _DashboardState extends State<Dashboard> {
     return ListView.builder(
         padding: const EdgeInsets.all(32.0),
         itemBuilder: (context, i) {
-          if (i < machineNames.length) return _machineStatus(machineNames[i]);
+          machineActivity = Map();
+          //if (i < machineNames.length) return _machineStatus(machineNames[i]);
+          if (i < machineNames.length) {
+            return FutureBuilder<Activity>(
+                future: fetchActivity(machineNames[i]),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    machineActivity[machineNames[i]] = snapshot.data;
+                    return Container(child: _machineStatus(machineNames[i]));
+                  } else if (snapshot.hasError) {
+                    return Text("${snapshot.error}");
+                  }
+
+                  // By default, show a loading spinner
+                  return CircularProgressIndicator();
+                });
+          }
         });
   }
 
   Widget _machineStatus(String name) {
+    List<num> usage = usageCalc(name);
+
     List<CircularStackEntry> data = <CircularStackEntry>[
       new CircularStackEntry(
         <CircularSegmentEntry>[
-          new CircularSegmentEntry(500.0, Colors.lightGreen, rankKey: 'Active'),
-          new CircularSegmentEntry(1000.0, Colors.grey[200], rankKey: 'Unused')
+          new CircularSegmentEntry(usage[0].toDouble(), Colors.lightGreen,
+              rankKey: 'Active'),
+          new CircularSegmentEntry(usage[1].toDouble(), Colors.grey[200],
+              rankKey: 'Unused')
         ],
         rankKey: 'Resource Usage',
       ),
@@ -65,7 +82,7 @@ class _DashboardState extends State<Dashboard> {
           Row(
             children: [
               AnimatedCircularChart(
-                size: const Size(150.0, 150.0),
+                size: const Size(200.0, 200.0),
                 initialChartData: data,
                 holeLabel: name,
                 chartType: CircularChartType.Radial,
@@ -75,6 +92,12 @@ class _DashboardState extends State<Dashboard> {
                   Container(
                     child: Text(name),
                   ),
+                  Container(
+                    child: Text(machineActivity[name].updated.toString()),
+                  ),
+                  Container(
+                      child:
+                          Text(machineActivity[name].runningJobs[0].starttime))
                 ],
               ),
             ],
@@ -83,5 +106,17 @@ class _DashboardState extends State<Dashboard> {
         ],
       ),
     );
+  }
+
+  List<num> usageCalc(String machine) {
+    num inactive = 0;
+    num active = machineActivity[machine].nodeInfo.length;
+    num total = machineActivity[machine].dimensions.midplanes *
+        machineActivity[machine].dimensions.nodecards *
+        machineActivity[machine].dimensions.racks *
+        machineActivity[machine].dimensions.rows *
+        machineActivity[machine].dimensions.subdivisions;
+    inactive = total - active;
+    return [active, inactive];
   }
 }

@@ -11,19 +11,19 @@ Activity _$ActivityFromJson(Map<String, dynamic> json) {
       dimensions: json['dimensions'] == null
           ? null
           : Dimensions.fromJson(json['dimensions'] as Map<String, dynamic>),
-      nodeInfo: (json['nodeInfo'] as List)
-          ?.map((e) =>
-              e == null ? null : NodeInfo.fromJson(e as Map<String, dynamic>))
-          ?.toList(),
-      queuedJobs: (json['queuedJobs'] as List)
+      nodeInfo: (json['nodeinfo'] as Map<String, dynamic>)?.map(
+        (k, e) => MapEntry(
+            k, e == null ? null : NodeInfo.fromJson(e as Map<String, dynamic>)),
+      ),
+      queuedJobs: (json['queued'] as List)
           ?.map((e) =>
               e == null ? null : QueuedJob.fromJson(e as Map<String, dynamic>))
           ?.toList(),
-      runningJobs: (json['runningJobs'] as List)
+      runningJobs: (json['running'] as List)
           ?.map((e) =>
               e == null ? null : RunningJob.fromJson(e as Map<String, dynamic>))
           ?.toList(),
-      reservations: (json['reservations'] as List)
+      reservations: (json['reservation'] as List)
           ?.map((e) => e == null
               ? null
               : Reservation.fromJson(e as Map<String, dynamic>))
@@ -33,10 +33,10 @@ Activity _$ActivityFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$ActivityToJson(Activity instance) => <String, dynamic>{
       'dimensions': instance.dimensions,
-      'nodeInfo': instance.nodeInfo,
-      'queuedJobs': instance.queuedJobs,
-      'runningJobs': instance.runningJobs,
-      'reservations': instance.reservations,
+      'nodeinfo': instance.nodeInfo,
+      'queued': instance.queuedJobs,
+      'running': instance.runningJobs,
+      'reservation': instance.reservations,
       'updated': instance.updated
     };
 
@@ -63,7 +63,7 @@ NodeInfo _$NodeInfoFromJson(Map<String, dynamic> json) {
       id: json['id'] as String,
       state: json['state'] as String,
       color: json['color'] as String,
-      jobid: json['jobid'] as String);
+      jobid: json['jobid'] as num);
 }
 
 Map<String, dynamic> _$NodeInfoToJson(NodeInfo instance) => <String, dynamic>{
@@ -108,7 +108,6 @@ RunningJob _$RunningJobFromJson(Map<String, dynamic> json) {
   return RunningJob(
       json['color'] as String,
       json['jobid'] as num,
-      (json['location'] as List)?.map((e) => e as String)?.toList(),
       json['mode'] as String,
       json['nodes'] as num,
       json['project'] as String,
@@ -125,7 +124,6 @@ Map<String, dynamic> _$RunningJobToJson(RunningJob instance) =>
     <String, dynamic>{
       'color': instance.color,
       'jobid': instance.jobid,
-      'location': instance.location,
       'mode': instance.mode,
       'nodes': instance.nodes,
       'project': instance.project,
