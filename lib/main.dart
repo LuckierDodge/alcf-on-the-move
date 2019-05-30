@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
 import 'dataManager.dart';
 
-var machineNames = ["Mira", "Cetus", "Vesta", "Cooley", "Theta"];
-Map<String, Activity> machineActivity;
-
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -28,13 +25,17 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  num _updates = 0;
+  var machineNames = ["Mira", "Cetus", "Vesta", "Cooley", "Theta"];
+  Map<String, Activity> machineActivity;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("ALCF On the Move"),
       ),
-      body: _machineList(),
+      body:
+          RefreshIndicator(child: _machineList(), onRefresh: _refreshActivity),
     );
   }
 
@@ -43,14 +44,15 @@ class _DashboardState extends State<Dashboard> {
         padding: const EdgeInsets.all(32.0),
         itemBuilder: (context, i) {
           machineActivity = Map();
-          //if (i < machineNames.length) return _machineStatus(machineNames[i]);
           if (i < machineNames.length) {
             return FutureBuilder<Activity>(
                 future: fetchActivity(machineNames[i]),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     machineActivity[machineNames[i]] = snapshot.data;
-                    return Container(child: _machineStatus(machineNames[i]));
+                    return Container(
+                        child: _machineStatus(
+                            machineNames[i], machineActivity[machineNames[i]]));
                   } else if (snapshot.hasError) {
                     return Text("${snapshot.error}");
                   }
@@ -62,15 +64,22 @@ class _DashboardState extends State<Dashboard> {
         });
   }
 
-  Widget _machineStatus(String name) {
-    List<num> usage = usageCalc(name);
-
+  Widget _machineStatus(String name, Activity activity) {
     List<CircularStackEntry> data = <CircularStackEntry>[
       new CircularStackEntry(
         <CircularSegmentEntry>[
-          new CircularSegmentEntry(usage[0].toDouble(), Colors.lightGreen,
+          new CircularSegmentEntry(
+              activity.nodeInfo.length.toDouble(),
+              Colors.lightGreen,
               rankKey: 'Active'),
-          new CircularSegmentEntry(usage[1].toDouble(), Colors.grey[200],
+          new CircularSegmentEntry(
+              activity.dimensions.midplanes *
+                      activity.dimensions.nodecards *
+                      activity.dimensions.racks *
+                      activity.dimensions.rows *
+                      activity.dimensions.subdivisions.toDouble() -
+                  activity.nodeInfo.length.toDouble(),
+              Colors.grey[200],
               rankKey: 'Unused')
         ],
         rankKey: 'Resource Usage',
@@ -89,15 +98,10 @@ class _DashboardState extends State<Dashboard> {
               ),
               Column(
                 children: [
-                  Container(
-                    child: Text(name),
-                  ),
-                  Container(
-                    child: Text(machineActivity[name].updated.toString()),
-                  ),
-                  Container(
-                      child:
-                          Text(machineActivity[name].runningJobs[0].starttime))
+                  Text(name),
+                  Text(activity.updated.toString()),
+                  Text(activity.runningJobs.length.toString()),
+                  Text(_updates.toString()),
                 ],
               ),
             ],
@@ -108,15 +112,14 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  List<num> usageCalc(String machine) {
-    num inactive = 0;
-    num active = machineActivity[machine].nodeInfo.length;
-    num total = machineActivity[machine].dimensions.midplanes *
-        machineActivity[machine].dimensions.nodecards *
-        machineActivity[machine].dimensions.racks *
-        machineActivity[machine].dimensions.rows *
-        machineActivity[machine].dimensions.subdivisions;
-    inactive = total - active;
-    return [active, inactive];
+  Future<void> _refreshActivity() async {
+    Map<String, Activity> tempActivity = Map();
+    machineNames.forEach((name) async {
+      tempActivity[name] = await fetchActivity(name);
+    });
+    setState(() {
+      machineActivity.addAll(tempActivity);
+      _updates++;
+    });
   }
 }
