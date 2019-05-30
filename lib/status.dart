@@ -61,7 +61,13 @@ class StatusState extends State<Status> {
             );
           }
           // By default, show a loading spinner
-          return CircularProgressIndicator();
+          return Card(
+              child: Center(
+                heightFactor: 10,
+                widthFactor: 10,
+                child: CircularProgressIndicator(),
+              ),
+          );
         });
   }
 
@@ -75,7 +81,7 @@ class StatusState extends State<Status> {
                 Center(
                   child: AnimatedCircularChart(
                     key: _chartKey,
-                    size: const Size(300.0, 300.0),
+                    size: Size(MediaQuery.of(context).size.width / 2, MediaQuery.of(context).size.width / 2),
                     initialChartData: _updateUsageData(),
                     holeLabel: name,
                     chartType: CircularChartType.Radial,
