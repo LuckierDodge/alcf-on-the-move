@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'dataManager.g.dart';
+part 'activity.g.dart';
 
 @JsonSerializable()
 class Activity {

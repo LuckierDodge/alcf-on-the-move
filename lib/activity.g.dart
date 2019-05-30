@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'dataManager.dart';
+part of 'activity.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
