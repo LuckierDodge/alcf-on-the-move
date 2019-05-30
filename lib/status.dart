@@ -49,10 +49,10 @@ class StatusState extends State<Status> {
             activity = snapshot.data;
             nodesUsed = activity.nodeInfo.length.toDouble();
             nodesUnused = activity.dimensions.midplanes *
-                activity.dimensions.nodecards *
-                activity.dimensions.racks *
-                activity.dimensions.rows *
-                activity.dimensions.subdivisions.toDouble() -
+                    activity.dimensions.nodecards *
+                    activity.dimensions.racks *
+                    activity.dimensions.rows *
+                    activity.dimensions.subdivisions.toDouble() -
                 activity.nodeInfo.length.toDouble();
             return _statusCard();
           } else if (snapshot.hasError) {
@@ -62,11 +62,11 @@ class StatusState extends State<Status> {
           }
           // By default, show a loading spinner
           return Card(
-              child: Center(
-                heightFactor: 10,
-                widthFactor: 10,
-                child: CircularProgressIndicator(),
-              ),
+            child: Center(
+              heightFactor: 5,
+              widthFactor: 5,
+              child: CircularProgressIndicator(),
+            ),
           );
         });
   }
@@ -74,31 +74,32 @@ class StatusState extends State<Status> {
   Widget _statusCard() {
     return Card(
       child: Container(
-        child: Column(
+        child: Row(
           children: [
-            Row(
-              children: [
-                Center(
-                  child: AnimatedCircularChart(
-                    key: _chartKey,
-                    size: Size(MediaQuery.of(context).size.width / 2, MediaQuery.of(context).size.width / 2),
-                    initialChartData: _updateUsageData(),
-                    holeLabel: name,
-                    chartType: CircularChartType.Radial,
-                  ),
-                ),
-                Center(
-                  child: Column(
-                    children: [
-                      Text(name),
-                      Text(activity.updated.toString()),
-                      Text(activity.runningJobs.length.toString()),
-                    ],
-                  ),
-                ),
-              ],
+            AnimatedCircularChart(
+              key: _chartKey,
+              size: Size(MediaQuery.of(context).size.width / 3,
+                  MediaQuery.of(context).size.width / 3),
+              initialChartData: _updateUsageData(),
+              holeLabel: name,
+              chartType: CircularChartType.Radial,
             ),
-            Divider(),
+            Container(
+              width: MediaQuery.of(context).size.width / 2,
+              child: Column(
+                children: [
+                  Text(
+                    name,
+                  ),
+                  Text(
+                    activity.updated.toString(),
+                  ),
+                  Text(
+                    activity.runningJobs.length.toString(),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

@@ -14,6 +14,7 @@ class _DashboardState extends State<Dashboard> {
   List<GlobalKey<StatusState>> statusKeys =
       new List<GlobalKey<StatusState>>(machineNames.length);
   final String title;
+  DateTime updatedTime = DateTime.now();
   _DashboardState(this.title);
 
   @override
@@ -43,12 +44,22 @@ class _DashboardState extends State<Dashboard> {
             GlobalKey<StatusState> machineKey = new GlobalKey();
             statusKeys[i] = machineKey;
             return Status(machineNames[i], key: statusKeys[i]);
+          } else if (i == machineNames.length) {
+            return Card(
+              child: Container(
+                padding: EdgeInsets.all(10.0),
+                  child: Text(
+                      "Last Updated: ${updatedTime.hour}:${updatedTime.minute}:${updatedTime.second}")),
+            );
           }
         });
   }
 
   Future<void> _refreshStatus() async {
-    statusKeys.forEach((status) =>
-        {if (status.currentState != null) status.currentState.updateStatus()});
+//    statusKeys.forEach((status) =>
+//        {if (status.currentState != null) status.currentState.updateStatus()});
+    this.setState(() {
+      updatedTime = DateTime.now();
+    });
   }
 }
