@@ -75,15 +75,13 @@ class _DashboardState extends State<Dashboard> {
             return Card(
               child: Container(
                   padding: EdgeInsets.all(10.0),
-                  child: Text("Last Updated: ${updatedTime}")),
+                  child: Text("Last Updated: $updatedTime")),
             );
           }
         });
   }
 
   Future<void> _refreshStatus() async {
-//    statusKeys.forEach((status) =>
-//        {if (status.currentState != null) status.currentState.updateStatus()});
     var tempCon = await Connectivity().checkConnectivity();
     this.setState(() {
       connectivity = tempCon;

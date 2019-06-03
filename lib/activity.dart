@@ -16,6 +16,7 @@ class Activity {
   @JsonKey(name: 'reservation')
   final List<Reservation> reservations;
   final int updated;
+  final bool maint;
 
   Activity(
       {this.dimensions,
@@ -23,7 +24,8 @@ class Activity {
       this.queuedJobs,
       this.runningJobs,
       this.reservations,
-      this.updated});
+      this.updated,
+      this.maint});
 
   factory Activity.fromJson(Map<String, dynamic> json) =>
       _$ActivityFromJson(json);
@@ -60,7 +62,7 @@ class NodeInfo {
   String id;
   String state;
   String color;
-  num jobid;
+  int jobid;
 
   NodeInfo({this.id, this.state, this.color, this.jobid});
 
@@ -70,17 +72,17 @@ class NodeInfo {
 
 @JsonSerializable()
 class QueuedJob {
-  num jobid;
+  int jobid;
   String mode;
-  num nodes;
+  int nodes;
   String project;
   String queue;
   String queuedtimef;
-  num score;
+  double score;
   String starttime;
   String state;
-  num submittime;
-  num walltime;
+  double submittime;
+  int walltime;
   String walltimef;
 
   QueuedJob(
@@ -104,17 +106,17 @@ class QueuedJob {
 @JsonSerializable()
 class RunningJob {
   String color;
-  num jobid;
+  int jobid;
 //  Locations location;
   String mode;
-  num nodes;
+  int nodes;
   String project;
   String queue;
   String runtimef;
   String starttime;
   String state;
-  num submittime;
-  num walltime;
+  double submittime;
+  int walltime;
   String walltimef;
 
   RunningJob(
@@ -142,11 +144,11 @@ class RunningJob {
 
 @JsonSerializable()
 class Reservation {
-  num duration;
+  int duration;
   String durationf;
   String name;
   String queue;
-  num start;
+  double start;
   String startf;
   String tminus;
 

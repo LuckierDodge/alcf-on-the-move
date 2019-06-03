@@ -28,7 +28,8 @@ Activity _$ActivityFromJson(Map<String, dynamic> json) {
               ? null
               : Reservation.fromJson(e as Map<String, dynamic>))
           ?.toList(),
-      updated: json['updated'] as int);
+      updated: json['updated'] as int,
+      maint: json['maint'] as bool);
 }
 
 Map<String, dynamic> _$ActivityToJson(Activity instance) => <String, dynamic>{
@@ -37,7 +38,8 @@ Map<String, dynamic> _$ActivityToJson(Activity instance) => <String, dynamic>{
       'queued': instance.queuedJobs,
       'running': instance.runningJobs,
       'reservation': instance.reservations,
-      'updated': instance.updated
+      'updated': instance.updated,
+      'maint': instance.maint
     };
 
 Dimensions _$DimensionsFromJson(Map<String, dynamic> json) {
@@ -63,7 +65,7 @@ NodeInfo _$NodeInfoFromJson(Map<String, dynamic> json) {
       id: json['id'] as String,
       state: json['state'] as String,
       color: json['color'] as String,
-      jobid: json['jobid'] as num);
+      jobid: json['jobid'] as int);
 }
 
 Map<String, dynamic> _$NodeInfoToJson(NodeInfo instance) => <String, dynamic>{
@@ -75,17 +77,17 @@ Map<String, dynamic> _$NodeInfoToJson(NodeInfo instance) => <String, dynamic>{
 
 QueuedJob _$QueuedJobFromJson(Map<String, dynamic> json) {
   return QueuedJob(
-      jobid: json['jobid'] as num,
+      jobid: json['jobid'] as int,
       mode: json['mode'] as String,
-      nodes: json['nodes'] as num,
+      nodes: json['nodes'] as int,
       project: json['project'] as String,
       queue: json['queue'] as String,
       queuedtimef: json['queuedtimef'] as String,
-      score: json['score'] as num,
+      score: (json['score'] as num)?.toDouble(),
       starttime: json['starttime'] as String,
       state: json['state'] as String,
-      submittime: json['submittime'] as num,
-      walltime: json['walltime'] as num,
+      submittime: (json['submittime'] as num)?.toDouble(),
+      walltime: json['walltime'] as int,
       walltimef: json['walltimef'] as String);
 }
 
@@ -107,16 +109,16 @@ Map<String, dynamic> _$QueuedJobToJson(QueuedJob instance) => <String, dynamic>{
 RunningJob _$RunningJobFromJson(Map<String, dynamic> json) {
   return RunningJob(
       json['color'] as String,
-      json['jobid'] as num,
+      json['jobid'] as int,
       json['mode'] as String,
-      json['nodes'] as num,
+      json['nodes'] as int,
       json['project'] as String,
       json['queue'] as String,
       json['runtimef'] as String,
       json['starttime'] as String,
       json['state'] as String,
-      json['submittime'] as num,
-      json['walltime'] as num,
+      (json['submittime'] as num)?.toDouble(),
+      json['walltime'] as int,
       json['walltimef'] as String);
 }
 
@@ -138,11 +140,11 @@ Map<String, dynamic> _$RunningJobToJson(RunningJob instance) =>
 
 Reservation _$ReservationFromJson(Map<String, dynamic> json) {
   return Reservation(
-      duration: json['duration'] as num,
+      duration: json['duration'] as int,
       durationf: json['durationf'] as String,
       name: json['name'] as String,
       queue: json['queue'] as String,
-      start: json['start'] as num,
+      start: (json['start'] as num)?.toDouble(),
       startf: json['startf'] as String,
       tminus: json['tminus'] as String);
 }

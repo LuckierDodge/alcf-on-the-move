@@ -12,31 +12,34 @@ class Status extends StatefulWidget {
 class StatusState extends State<Status> {
   final String name;
   Activity activity;
-  num nodesUsed = 0;
-  num nodesUnused = 0;
+  int nodesUsed = 0;
+  int nodesTotal = 0;
   final GlobalKey<AnimatedCircularChartState> _chartKey =
       new GlobalKey<AnimatedCircularChartState>();
+  num coreHoursScheduled = 0;
 
   StatusState(this.name);
 
   Future<void> updateStatus() async {
     try {
       Activity newActivity = await fetchActivity(name);
-
+      var coreHours = 0.0;
+      newActivity.reservations
+          .forEach((res) => {coreHours += res.duration / 60 / 60});
       setState(() {
         activity = newActivity;
-        nodesUsed = activity.nodeInfo.length.toDouble();
-        nodesUnused = activity.dimensions.midplanes *
-                activity.dimensions.nodecards *
-                activity.dimensions.racks *
-                activity.dimensions.rows *
-                activity.dimensions.subdivisions.toDouble() -
-            activity.nodeInfo.length.toDouble();
+        nodesUsed = activity.nodeInfo.length;
+        nodesTotal = activity.dimensions.midplanes *
+            activity.dimensions.nodecards *
+            activity.dimensions.racks *
+            activity.dimensions.rows *
+            activity.dimensions.subdivisions;
+        coreHoursScheduled = coreHours;
         _chartKey.currentState.updateData(_updateUsageData());
       });
     } catch (exception) {
       throw Exception(
-          "Error while updating  status for machine ${name}: ${exception.toString()}");
+          "Error while updating  status for machine $name: ${exception.toString()}");
     }
   }
 
@@ -47,17 +50,37 @@ class StatusState extends State<Status> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             activity = snapshot.data;
-            nodesUsed = activity.nodeInfo.length.toDouble();
-            nodesUnused = activity.dimensions.midplanes *
-                    activity.dimensions.nodecards *
-                    activity.dimensions.racks *
-                    activity.dimensions.rows *
-                    activity.dimensions.subdivisions.toDouble() -
-                activity.nodeInfo.length.toDouble();
+            if (activity.maint != null && activity.maint) {
+              return Card(
+                  child: Center(
+                    widthFactor: 10,
+                    heightFactor: 10,
+                    child: Text(
+                      "$name is down for maintenance!",
+                    ),
+                  ),
+              );
+            }
+            nodesUsed = activity.nodeInfo.length;
+            nodesTotal = activity.dimensions.midplanes *
+                activity.dimensions.nodecards *
+                activity.dimensions.racks *
+                activity.dimensions.rows *
+                activity.dimensions.subdivisions;
+            coreHoursScheduled = 0;
+            activity.reservations.forEach(
+                (res) => {coreHoursScheduled += res.duration / 60 / 60});
             return _statusCard();
           } else if (snapshot.hasError) {
             return Card(
-              child: Text("${snapshot.error}"),
+              child: Center(
+                heightFactor: 10,
+                widthFactor: 10,
+                child: Text(
+//                    "Sorry, there was a problem loading the status for $name!\nYou can try refreshing."),
+                  "Error: ${snapshot.error}",
+                ),
+              ),
             );
           }
           // By default, show a loading spinner
@@ -81,8 +104,11 @@ class StatusState extends State<Status> {
               size: Size(MediaQuery.of(context).size.width / 3,
                   MediaQuery.of(context).size.width / 3),
               initialChartData: _updateUsageData(),
-              holeLabel: name,
+              holeLabel: "$name\n${(nodesUsed / nodesTotal * 100).round()}%",
               chartType: CircularChartType.Radial,
+              labelStyle: TextStyle(
+                fontSize: 18,
+              ),
             ),
             Container(
               width: MediaQuery.of(context).size.width / 2,
@@ -90,13 +116,26 @@ class StatusState extends State<Status> {
                 children: [
                   Text(
                     name,
+                    style: TextStyle(fontSize: 18),
                   ),
                   Text(
-                    activity.updated.toString(),
+                    "Running Jobs: ${activity.runningJobs.length.toString()}",
                   ),
                   Text(
-                    activity.runningJobs.length.toString(),
+                    "Queued Jobs: ${activity.queuedJobs.length.toString()}",
                   ),
+                  Text(
+                    "Core Hours Scheduled: ${coreHoursScheduled.round().toString()}",
+                  ),
+                  Text(
+                    "Reservations: ${activity.reservations.length}",
+                  ),
+                  Text(
+                    "Nodes in Use: $nodesUsed",
+                  ),
+                  Text(
+                    "Nodes Total: $nodesTotal",
+                  )
                 ],
               ),
             ),
@@ -110,9 +149,10 @@ class StatusState extends State<Status> {
     return <CircularStackEntry>[
       new CircularStackEntry(
         <CircularSegmentEntry>[
-          new CircularSegmentEntry(nodesUsed, Colors.lightGreen,
+          new CircularSegmentEntry(nodesUsed.toDouble(), Colors.lightGreen,
               rankKey: 'Active'),
-          new CircularSegmentEntry(nodesUnused, Colors.grey[200],
+          new CircularSegmentEntry(
+              (nodesTotal - nodesUsed).toDouble(), Colors.grey[200],
               rankKey: 'Unused')
         ],
         rankKey: 'Resource Usage',
