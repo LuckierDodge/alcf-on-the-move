@@ -28,12 +28,7 @@ class StatusState extends State<Status> {
           .forEach((res) => {coreHours += res.duration / 60 / 60});
       setState(() {
         activity = newActivity;
-        nodesUsed = activity.nodeInfo.length;
-        nodesTotal = activity.dimensions.midplanes *
-            activity.dimensions.nodecards *
-            activity.dimensions.racks *
-            activity.dimensions.rows *
-            activity.dimensions.subdivisions;
+        _calculateNodesUsed();
         coreHoursScheduled = coreHours;
         _chartKey.currentState.updateData(_updateUsageData());
       });
@@ -61,12 +56,8 @@ class StatusState extends State<Status> {
                   ),
               );
             }
-            nodesUsed = activity.nodeInfo.length;
-            nodesTotal = activity.dimensions.midplanes *
-                activity.dimensions.nodecards *
-                activity.dimensions.racks *
-                activity.dimensions.rows *
-                activity.dimensions.subdivisions;
+
+            _calculateNodesUsed();
             coreHoursScheduled = 0;
             activity.reservations.forEach(
                 (res) => {coreHoursScheduled += res.duration / 60 / 60});
@@ -143,6 +134,31 @@ class StatusState extends State<Status> {
         ),
       ),
     );
+  }
+
+  void _calculateNodesUsed() {
+    if (name == "Cooley") {
+      var used = 0;
+      var unused = 0;
+      activity.nodeInfo..forEach((key, node) => {
+        (node.state == "allocated") ? used++:unused++
+      });
+      nodesUsed = used;
+      nodesTotal = used + unused;
+    } else if (name == "Theta") {
+      nodesUsed = 0;
+      activity.runningJobs.forEach((job) => {
+        nodesUsed += job.nodes
+      });
+      nodesTotal = 4392;
+    } else {
+      nodesUsed = activity.nodeInfo.length;
+      nodesTotal = activity.dimensions.midplanes *
+          activity.dimensions.nodecards *
+          activity.dimensions.racks *
+          activity.dimensions.rows *
+          activity.dimensions.subdivisions;
+    }
   }
 
   List<CircularStackEntry> _updateUsageData() {
