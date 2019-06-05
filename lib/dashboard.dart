@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'status.dart';
 import 'noconnection.dart';
+import 'settings.dart';
 import 'package:connectivity/connectivity.dart';
 
 class Dashboard extends StatefulWidget {
@@ -52,7 +53,10 @@ class _DashboardState extends State<Dashboard> {
           ),
           actions: <Widget>[
             new IconButton(
-                icon: const Icon(Icons.refresh), onPressed: _refreshStatus)
+                icon: const Icon(Icons.refresh), onPressed: _refreshStatus),
+                new IconButton(icon: const Icon(Icons.settings), onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => Settings()));
+                }),
           ],
         ),
         body: RefreshIndicator(

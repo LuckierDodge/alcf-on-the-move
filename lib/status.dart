@@ -121,12 +121,6 @@ class StatusState extends State<Status> {
                   Text(
                     "Reservations: ${activity.reservations.length}",
                   ),
-                  Text(
-                    "Nodes in Use: $nodesUsed",
-                  ),
-                  Text(
-                    "Nodes Total: $nodesTotal",
-                  )
                 ],
               ),
             ),
