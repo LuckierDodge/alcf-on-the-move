@@ -1,4 +1,5 @@
 import 'activity.dart';
+import 'machine.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
 
@@ -88,43 +89,49 @@ class StatusState extends State<Status> {
   Widget _statusCard() {
     return Card(
       child: Container(
-        child: Row(
-          children: [
-            AnimatedCircularChart(
-              key: _chartKey,
-              size: Size(MediaQuery.of(context).size.width / 3,
-                  MediaQuery.of(context).size.width / 3),
-              initialChartData: _updateUsageData(),
-              holeLabel: "$name\n${(nodesUsed / nodesTotal * 100).round()}%",
-              chartType: CircularChartType.Radial,
-              labelStyle: TextStyle(
-                fontSize: 18,
+        child: FlatButton(
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => Machine(name)));
+          },
+          child: 
+          Row(
+            children: [
+              AnimatedCircularChart(
+                key: _chartKey,
+                size: Size(MediaQuery.of(context).size.width / 3,
+                    MediaQuery.of(context).size.width / 3),
+                initialChartData: _updateUsageData(),
+                holeLabel: "$name\n${(nodesUsed / nodesTotal * 100).round()}%",
+                chartType: CircularChartType.Radial,
+                labelStyle: TextStyle(
+                  fontSize: 18,
+                ),
               ),
-            ),
-            Container(
-              width: MediaQuery.of(context).size.width / 2,
-              child: Column(
-                children: [
-                  Text(
-                    name,
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  Text(
-                    "Running Jobs: ${activity.runningJobs.length.toString()}",
-                  ),
-                  Text(
-                    "Queued Jobs: ${activity.queuedJobs.length.toString()}",
-                  ),
-                  Text(
-                    "Core Hours Scheduled: ${coreHoursScheduled.round().toString()}",
-                  ),
-                  Text(
-                    "Reservations: ${activity.reservations.length}",
-                  ),
-                ],
+              Container(
+                width: MediaQuery.of(context).size.width / 2,
+                child: Column(
+                  children: [
+                    Text(
+                      name,
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    Text(
+                      "Running Jobs: ${activity.runningJobs.length.toString()}",
+                    ),
+                    Text(
+                      "Queued Jobs: ${activity.queuedJobs.length.toString()}",
+                    ),
+                    Text(
+                      "Core Hours Scheduled: ${coreHoursScheduled.round().toString()}",
+                    ),
+                    Text(
+                      "Reservations: ${activity.reservations.length}",
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

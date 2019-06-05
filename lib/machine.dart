@@ -12,6 +12,13 @@ class MachineState extends State<Machine> {
   MachineState(this.name);
   @override
   Widget build(BuildContext context) {
-    
+    return Scaffold(
+        appBar: AppBar(
+          title: Center(
+            child: Text(name),
+          ),
+        ),
+        body: Text(name),
+    );
   }
 }
