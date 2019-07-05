@@ -3,6 +3,7 @@ import 'status.dart';
 import 'noconnection.dart';
 import 'settings.dart';
 import 'package:connectivity/connectivity.dart';
+import 'newspage.dart';
 
 class Dashboard extends StatefulWidget {
   Dashboard({Key key, this.title}) : super(key: key);
@@ -32,12 +33,25 @@ class _DashboardState extends State<Dashboard> {
     if (connectivity == ConnectivityResult.none) {
       return Scaffold(
         appBar: AppBar(
-          title: Center(
-            child: Text(title),
-          ),
+          title: Text(title),
           actions: <Widget>[
             new IconButton(
-                icon: const Icon(Icons.refresh), onPressed: _refreshStatus)
+                icon: const Icon(Icons.refresh), onPressed: _refreshStatus),
+            new IconButton(
+                icon: const Icon(Icons.settings),
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Settings()));
+                }),
+            new IconButton(
+                icon: const Icon(Icons.bookmark),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              NewsPage(title: 'News & Announcements')));
+                })
           ],
         ),
         body: RefreshIndicator(
@@ -48,15 +62,25 @@ class _DashboardState extends State<Dashboard> {
     } else {
       return Scaffold(
         appBar: AppBar(
-          title: Center(
-            child: Text(title),
-          ),
+          title: Text(title),
           actions: <Widget>[
             new IconButton(
                 icon: const Icon(Icons.refresh), onPressed: _refreshStatus),
-                new IconButton(icon: const Icon(Icons.settings), onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => Settings()));
+            new IconButton(
+                icon: const Icon(Icons.settings),
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Settings()));
                 }),
+            new IconButton(
+                icon: const Icon(Icons.bookmark),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              NewsPage(title: 'News & Announcements')));
+                })
           ],
         ),
         body: RefreshIndicator(
