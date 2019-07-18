@@ -1,9 +1,10 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
-import 'status.dart';
+
+import 'newspage.dart';
 import 'noconnection.dart';
 import 'settings.dart';
-import 'package:connectivity/connectivity.dart';
-import 'newspage.dart';
+import 'status.dart';
 
 class Dashboard extends StatefulWidget {
   Dashboard({Key key, this.title}) : super(key: key);
@@ -105,6 +106,8 @@ class _DashboardState extends State<Dashboard> {
                   padding: EdgeInsets.all(10.0),
                   child: Text("Last Updated: $updatedTime")),
             );
+          } else {
+            return null;
           }
         });
   }

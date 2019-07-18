@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.green,
         brightness: Brightness.dark,
       ),
-      home: Dashboard(title: 'ALCF On The Move Dashboard'),
+      home: Dashboard(title: 'ALCF On The Move'),
     );
   }
 }
