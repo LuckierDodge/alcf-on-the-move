@@ -110,6 +110,7 @@ RunningJob _$RunningJobFromJson(Map<String, dynamic> json) {
   return RunningJob(
       json['color'] as String,
       json['jobid'] as int,
+      json['location'],
       json['mode'] as String,
       json['nodes'] as int,
       json['project'] as String,
@@ -126,6 +127,7 @@ Map<String, dynamic> _$RunningJobToJson(RunningJob instance) =>
     <String, dynamic>{
       'color': instance.color,
       'jobid': instance.jobid,
+      'location': instance.location,
       'mode': instance.mode,
       'nodes': instance.nodes,
       'project': instance.project,

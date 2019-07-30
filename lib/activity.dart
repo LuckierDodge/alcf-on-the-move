@@ -1,6 +1,6 @@
-import 'package:http/http.dart' as http;
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:json_annotation/json_annotation.dart';
 
 part 'activity.g.dart';
@@ -108,7 +108,7 @@ class QueuedJob {
 class RunningJob {
   String color;
   int jobid;
-//  Locations location;
+  Object location;
   String mode;
   int nodes;
   String project;
@@ -123,7 +123,7 @@ class RunningJob {
   RunningJob(
       this.color,
       this.jobid,
-//      this.location,
+      this.location,
       this.mode,
       this.nodes,
       this.project,
@@ -138,10 +138,6 @@ class RunningJob {
   factory RunningJob.fromJson(Map<String, dynamic> json) =>
       _$RunningJobFromJson(json);
 }
-
-//class Locations {
-//
-//}
 
 @JsonSerializable()
 class Reservation {
