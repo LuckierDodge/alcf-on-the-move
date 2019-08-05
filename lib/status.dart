@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
 
 import 'activity.dart';
+import 'joblist.dart';
 import 'mapvisualization.dart';
 
 class Status extends StatefulWidget {
@@ -116,27 +117,69 @@ class StatusState extends State<Status> {
             size: Size(MediaQuery.of(context).size.width / 3,
                 MediaQuery.of(context).size.width / 3),
             initialChartData: _updateUsageData(),
-            holeLabel: "$name\n${(nodesUsed / nodesTotal * 100).round()}%",
+            holeLabel: "${(nodesUsed / nodesTotal * 100).round()}%",
             chartType: CircularChartType.Radial,
             labelStyle: TextStyle(
-              fontSize: 18,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
+//            holeRadius: MediaQuery.of(context).size.width / 15,
           ),
           Container(
-            width: MediaQuery.of(context).size.width / 2.2,
+            width: MediaQuery.of(context).size.width / 1.8,
             child: Column(
               children: [
                 Text(
-                  "Running Jobs: ${activity.runningJobs.length.toString()}",
+                  "$name",
+                  textScaleFactor: 1.5,
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  "Queued Jobs: ${activity.queuedJobs.length.toString()}",
-                ),
-                Text(
-                  "Core Hours Scheduled: ${coreHoursScheduled.round().toString()}",
-                ),
-                Text(
-                  "Reservations: ${activity.reservations.length}",
+                Divider(),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Running Jobs:",
+                            textScaleFactor: 1.1,
+                          ),
+                          Text(
+                            "Queued Jobs:",
+                            textScaleFactor: 1.1,
+                          ),
+                          Text(
+                            "Core Hours Scheduled:",
+                            textScaleFactor: 1.1,
+                          ),
+                          Text(
+                            "Reservations:",
+                            textScaleFactor: 1.1,
+                          ),
+                        ]),
+                    Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "${activity.runningJobs.length.toString()}",
+                            textScaleFactor: 1.1,
+                          ),
+                          Text(
+                            "${activity.queuedJobs.length.toString()}",
+                            textScaleFactor: 1.1,
+                          ),
+                          Text(
+                            "${coreHoursScheduled.round().toString()}",
+                            textScaleFactor: 1.1,
+                          ),
+                          Text(
+                            "${activity.reservations.length}",
+                            textScaleFactor: 1.1,
+                          ),
+                        ])
+                  ],
                 ),
               ],
             ),
@@ -148,6 +191,7 @@ class StatusState extends State<Status> {
     if (expanded) {
       content.add(Divider());
       content.add(MapVis(name, activity));
+      content.add(JobList(activity));
     }
 
     return content;

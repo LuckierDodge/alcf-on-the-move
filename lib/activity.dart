@@ -1,6 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 
+////import 'dart:io';
+
+import 'package:http/http.dart' as http;
 import 'package:json_annotation/json_annotation.dart';
 
 part 'activity.g.dart';
@@ -163,36 +165,41 @@ class Reservation {
 }
 
 // How it should be done -->
-//Future<Activity> fetchActivity(String machine) async {
-//  final response = await http
-//      .get('https://status.alcf.anl.gov/${machine.toLowerCase()}/activity.json');
-//  if (response.statusCode == 200) {
-//    // If server returns an OK response, parse the JSON
-//    return Activity.fromJson(json.decode(response.body));
-//  } else {
-//    // If that response was not OK, throw an error.
-//    throw Exception('Failed to load Machine activity for $machine');
-//  }
-//}
-
-// The bullshit hacky way that security is gonna yell at me for -->
 Future<Activity> fetchActivity(String machine) async {
-  var client = new HttpClient();
-  client.badCertificateCallback =
-      (X509Certificate cert, String host, int port) => true;
+  final response = await http.get(
+      'https://status.alcf.anl.gov/${machine.toLowerCase()}/activity.json');
   try {
-    var request = await client.getUrl(Uri.parse(
-        'https://status.alcf.anl.gov/${machine.toLowerCase()}/activity.json'));
-    var response = await request.close();
     if (response.statusCode == 200) {
       // If server returns an OK response, parse the JSON
-      return Activity.fromJson(json.decode(
-          await response.cast<List<int>>().transform(utf8.decoder).join()));
+      return Activity.fromJson(json.decode(response.body));
     } else {
       // If that response was not OK, throw an error.
       throw Exception('Failed to load Machine activity for $machine');
     }
-  } finally {
-    client.close();
+  } catch (e) {
+    throw Exception('Failed to load Machine activity for $machine');
   }
 }
+
+// This function is the solution to a problem Flutter had at one point with SSL Certs
+// It can temporarily replace the above if it crops up again-->
+//Future<Activity> fetchActivity(String machine) async {
+//  var client = new HttpClient();
+//  client.badCertificateCallback =
+//      (X509Certificate cert, String host, int port) => true;
+//  try {
+//    var request = await client.getUrl(Uri.parse(
+//        'https://status.alcf.anl.gov/${machine.toLowerCase()}/activity.json'));
+//    var response = await request.close();
+//    if (response.statusCode == 200) {
+//      // If server returns an OK response, parse the JSON
+//      return Activity.fromJson(json.decode(
+//          await response.cast<List<int>>().transform(utf8.decoder).join()));
+//    } else {
+//      // If that response was not OK, throw an error.
+//      throw Exception('Failed to load Machine activity for $machine');
+//    }
+//  } finally {
+//    client.close();
+//  }
+//}
