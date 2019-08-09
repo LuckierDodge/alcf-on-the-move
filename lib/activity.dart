@@ -7,6 +7,56 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'activity.g.dart';
 
+/// Activity
+/// Contains both the Activity class and a fetchActivity async function that
+/// takes the name of a machine who's status is published at
+/// https://status.alcf.anl.gov/<machine>/activity.json and returns the
+/// deserialized json as an Activity object.
+///
+/// Generate code using `flutter pub run build_runner build`
+
+// How it should be done -->
+Future<Activity> fetchActivity(String machine) async {
+  final response = await http.get(
+      'https://status.alcf.anl.gov/${machine.toLowerCase()}/activity.json');
+  try {
+    if (response.statusCode == 200) {
+      // If server returns an OK response, parse the JSON
+      return Activity.fromJson(json.decode(response.body));
+    } else {
+      // If that response was not OK, throw an error.
+      throw Exception('Failed to load Machine activity for $machine');
+    }
+  } catch (e) {
+    // Wrapped in a try-catch to solve a weird edge-case with the GET request
+    // itself failing
+    throw Exception('Failed to load Machine activity for $machine');
+  }
+}
+
+// This function is the solution to a problem Flutter had at one point with SSL Certs
+// It can temporarily replace the above if it crops up again-->
+//Future<Activity> fetchActivity(String machine) async {
+//  var client = new HttpClient();
+//  client.badCertificateCallback =
+//      (X509Certificate cert, String host, int port) => true;
+//  try {
+//    var request = await client.getUrl(Uri.parse(
+//        'https://status.alcf.anl.gov/${machine.toLowerCase()}/activity.json'));
+//    var response = await request.close();
+//    if (response.statusCode == 200) {
+//      // If server returns an OK response, parse the JSON
+//      return Activity.fromJson(json.decode(
+//          await response.cast<List<int>>().transform(utf8.decoder).join()));
+//    } else {
+//      // If that response was not OK, throw an error.
+//      throw Exception('Failed to load Machine activity for $machine');
+//    }
+//  } finally {
+//    client.close();
+//  }
+//}
+
 @JsonSerializable()
 class Activity {
   final Dimensions dimensions;
@@ -163,43 +213,3 @@ class Reservation {
   factory Reservation.fromJson(Map<String, dynamic> json) =>
       _$ReservationFromJson(json);
 }
-
-// How it should be done -->
-Future<Activity> fetchActivity(String machine) async {
-  final response = await http.get(
-      'https://status.alcf.anl.gov/${machine.toLowerCase()}/activity.json');
-  try {
-    if (response.statusCode == 200) {
-      // If server returns an OK response, parse the JSON
-      return Activity.fromJson(json.decode(response.body));
-    } else {
-      // If that response was not OK, throw an error.
-      throw Exception('Failed to load Machine activity for $machine');
-    }
-  } catch (e) {
-    throw Exception('Failed to load Machine activity for $machine');
-  }
-}
-
-// This function is the solution to a problem Flutter had at one point with SSL Certs
-// It can temporarily replace the above if it crops up again-->
-//Future<Activity> fetchActivity(String machine) async {
-//  var client = new HttpClient();
-//  client.badCertificateCallback =
-//      (X509Certificate cert, String host, int port) => true;
-//  try {
-//    var request = await client.getUrl(Uri.parse(
-//        'https://status.alcf.anl.gov/${machine.toLowerCase()}/activity.json'));
-//    var response = await request.close();
-//    if (response.statusCode == 200) {
-//      // If server returns an OK response, parse the JSON
-//      return Activity.fromJson(json.decode(
-//          await response.cast<List<int>>().transform(utf8.decoder).join()));
-//    } else {
-//      // If that response was not OK, throw an error.
-//      throw Exception('Failed to load Machine activity for $machine');
-//    }
-//  } finally {
-//    client.close();
-//  }
-//}

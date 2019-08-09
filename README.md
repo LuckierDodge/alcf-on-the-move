@@ -4,8 +4,6 @@ An on-the-go, cross-platform app for monitoring ALCF compute resources.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
-
 A few resources to get you started if this is your first Flutter project:
 
 - [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
@@ -14,3 +12,20 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter, view our 
 [online documentation](https://flutter.dev/docs), which offers tutorials, 
 samples, guidance on mobile development, and a full API reference.
+
+## Topography
+
+* main.dart: Entry point for the app, launches straight into the Dashboard page
+* dashboard.dart: Main page for the app, contains the list of machines and buttons to navigate to other pages
+    * machine.dart: custom widget that displays the usage of each machine. Tap to display additional info
+        * status.dart: widget that generates circular chart and summary statistics for a machine
+        * mapvisualization.dart: displays a collapsible representation of the map visualization
+        * joblist.dart: lists all the running and queued jobs, as well as reservations.
+    * settings.dart: manage settings for the app, accessed by gear icon
+    * newspage.dart: scrapes https://alcf.anl.gov and displays a list of news articles
+        * alcfscraper.dart: used by the news page to scrape the website
+    * utils.dart: contains functions and classes used in multiple widgets
+* activity.dart: JSON deserializer for status.alcf.anl.gov/<machinename>/activity.json,
+includes the fetchActivity function
+    * activity.g.dart: generated function created from activity.dart
+        * Build using: flutter pub run build_runner build

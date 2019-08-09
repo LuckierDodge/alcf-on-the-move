@@ -2,6 +2,12 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 
 import 'activity.dart';
+import 'utils.dart';
+
+/// Job List
+///
+/// Lists all of the running, queued, and reserved jobs for a machine
+/// TODO: Make it not ugly
 
 class JobList extends StatefulWidget {
   JobList(this.activity, {Key key}) : super(key: key);
@@ -15,6 +21,7 @@ class JobListState extends State<JobList> {
 
   JobListState(this.activity);
 
+  /// Builds the widget
   @override
   Widget build(BuildContext context) {
     var runningJobs = activity.runningJobs.length;
@@ -25,6 +32,7 @@ class JobListState extends State<JobList> {
         padding: EdgeInsets.all(5),
         child: Column(
           children: <Widget>[
+            // Running Jobs
             ExpandableNotifier(
               child: ExpandablePanel(
                 header: Text(
@@ -34,6 +42,7 @@ class JobListState extends State<JobList> {
                 expanded: _runningJobs(),
               ),
             ),
+            // Queued Jobs
             ExpandableNotifier(
               child: ExpandablePanel(
                 header: Text(
@@ -43,6 +52,7 @@ class JobListState extends State<JobList> {
                 expanded: _queuedJobs(),
               ),
             ),
+            // Reservations
             ExpandableNotifier(
               child: ExpandablePanel(
                   header: Text(
@@ -55,6 +65,7 @@ class JobListState extends State<JobList> {
         ));
   }
 
+  /// Displays all the running jobs
   _runningJobs() {
     List<Widget> widgetList = [];
     activity.runningJobs.forEach((job) {
@@ -66,12 +77,7 @@ class JobListState extends State<JobList> {
               padding: EdgeInsets.all(5.0),
               child: Card(
                   child: Text(job.jobid.toString()),
-                  color: Color.fromARGB(
-                    255,
-                    int.parse(job.color.toString().substring(1, 3), radix: 16),
-                    int.parse(job.color.toString().substring(3, 5), radix: 16),
-                    int.parse(job.color.toString().substring(5, 7), radix: 16),
-                  ))),
+                  color: parseColor(job.color))),
           Row(
             children: <Widget>[Text("Project: "), Text(job.project.toString())],
           ),
@@ -130,6 +136,7 @@ class JobListState extends State<JobList> {
     );
   }
 
+  /// Displays all the queued jobs
   _queuedJobs() {
     List<Widget> widgetList = [];
     activity.queuedJobs.forEach((job) {
@@ -209,6 +216,7 @@ class JobListState extends State<JobList> {
     );
   }
 
+  /// Displays all the reservations jobs
   _reservations() {
     List<Widget> widgetList = [];
     activity.reservations.forEach((job) {

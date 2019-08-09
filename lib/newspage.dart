@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'alcfscraper.dart';
-import 'noconnection.dart';
 import 'settings.dart';
+import 'utils.dart';
+
+/// News Page
+///
+/// Defines a NewsPage stateful widget and its NewsPageState class, for
+/// displaying info scraped from alcf.anl.gov
 
 class NewsPage extends StatefulWidget {
   NewsPage({Key key, this.title}) : super(key: key);
@@ -20,56 +25,50 @@ class _NewsPageState extends State<NewsPage> {
 
   _NewsPageState(this.title);
 
+  /// Runs before anything else
   @override
   void initState() {
     super.initState();
-    updatedTime = _getTime();
+    updatedTime = getTime();
     _checkConnectivity();
   }
 
+  /// Builds the widget, complete with Connectivity checking wrapper
   @override
   Widget build(BuildContext context) {
+    Widget activeWidget;
+    // Make sure the device is online
     if (connectivity == ConnectivityResult.none) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Center(
-            child: Text(title),
-          ),
-          actions: <Widget>[
-            new IconButton(
-                icon: const Icon(Icons.refresh), onPressed: _refreshStatus)
-          ],
-        ),
-        body: RefreshIndicator(
-          child: NoConnection(),
-          onRefresh: _refreshStatus,
-        ),
-      );
+      activeWidget = NoConnection();
     } else {
-      return Scaffold(
-        appBar: AppBar(
-          title: Center(
-            child: Text(title),
-          ),
-          actions: <Widget>[
-            new IconButton(
-                icon: const Icon(Icons.refresh), onPressed: _refreshStatus),
-            new IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Settings()));
-                }),
-          ],
-        ),
-        body: RefreshIndicator(
-          child: _newsFeed(),
-          onRefresh: _refreshStatus,
-        ),
-      );
+      activeWidget = _newsFeed();
     }
+    return Scaffold(
+      appBar: AppBar(
+        title: Center(
+          child: Text(title),
+        ),
+        actions: <Widget>[
+          //Refresh Button
+          new IconButton(
+              icon: const Icon(Icons.refresh), onPressed: _refreshStatus),
+          // Settings Button
+          new IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => Settings()));
+              }),
+        ],
+      ),
+      body: RefreshIndicator(
+        child: activeWidget,
+        onRefresh: _refreshStatus,
+      ),
+    );
   }
 
+  /// The actual list of announcements
   Widget _newsFeed() {
     return FutureBuilder<NewsContent>(
         future: scrape(),
@@ -81,26 +80,27 @@ class _NewsPageState extends State<NewsPage> {
                 itemBuilder: (context, i) {
                   if (items == null && i == 0) {
                     return Card(
+                        // Probably a problem with the scraper, but the user doesn't need to know
                         child: Center(child: Text("No Announcements!")));
                   } else if (i < items.length) {
+                    // Display each announcement
                     return _announcement(items[i]);
                   } else if (i == items.length) {
+                    // Return the Last Updated time at the end
                     return Card(
                       child: Container(
                           padding: EdgeInsets.all(10.0),
                           child: Text("Last Updated: $updatedTime")),
                     );
                   } else {
+                    // Appease the linter
                     return null;
                   }
                 });
           } else if (snapshot.hasError) {
             return Card(
               child: Center(
-                heightFactor: 10,
-                widthFactor: 10,
                 child: Text(
-//                    "Sorry, there was a problem loading the news feed."),
                   "Error: ${snapshot.error}",
                 ),
               ),
@@ -109,19 +109,54 @@ class _NewsPageState extends State<NewsPage> {
           // By default, show a loading spinner
           return Card(
             child: Center(
-              heightFactor: 10,
-              widthFactor: 10,
               child: CircularProgressIndicator(),
             ),
           );
         });
   }
 
+  /// Displays an individual announcement on the page
+  Card _announcement(CarouselItem item) {
+    return Card(
+        child: FlatButton(
+            onPressed: () {
+              // Open a link when clicked
+              _openLink(item.link);
+            },
+            child: Container(
+                padding: EdgeInsets.all(10.0),
+                child: Column(
+                  children: [
+                    Image.network(item.imageURL),
+                    Center(
+                        child: Text(
+                      item.title.toString(),
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    )),
+                    Divider(),
+                    Center(child: Text(item.text.toString()))
+                  ],
+                ))));
+  }
+
+  /// Opens a link in a browser
+  _openLink(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  ///
+  /// Helper functions for refreshing and checking connectivity
+  ///
   Future<void> _refreshStatus() async {
     var tempCon = await Connectivity().checkConnectivity();
     this.setState(() {
       connectivity = tempCon;
-      updatedTime = _getTime();
+      updatedTime = getTime();
     });
   }
 
@@ -130,78 +165,5 @@ class _NewsPageState extends State<NewsPage> {
     setState(() {
       connectivity = tempCon;
     });
-  }
-
-  Card _announcement(CarouselItem item) {
-    return Card(
-        child: FlatButton(
-            onPressed: () {
-              _openLink(item.link);
-            },
-            child: Column(
-              children: [
-                Image.network(item.imageURL),
-                Center(
-                    child: Text(
-                  item.title.toString(),
-                  style: TextStyle(fontSize: 20),
-                )),
-                Center(child: Text(item.text.toString()))
-              ],
-            )));
-  }
-
-  _openLink(String url) async {
-//    const url =
-//        'https://www.alcf.anl.gov/articles/us-department-energy-and-intel-deliver-first-exascale-supercomputer';
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
-  String _getTime() {
-    String month;
-    DateTime now = DateTime.now();
-    switch (now.month) {
-      case 1:
-        month = "January";
-        break;
-      case 2:
-        month = "February";
-        break;
-      case 3:
-        month = "March";
-        break;
-      case 4:
-        month = "April";
-        break;
-      case 5:
-        month = "May";
-        break;
-      case 6:
-        month = "June";
-        break;
-      case 7:
-        month = "July";
-        break;
-      case 8:
-        month = "August";
-        break;
-      case 9:
-        month = "September";
-        break;
-      case 10:
-        month = "October";
-        break;
-      case 11:
-        month = "November";
-        break;
-      case 12:
-        month = "December";
-        break;
-    }
-    return "$month ${now.day}, ${now.hour}:${(now.minute < 10) ? "0" + now.minute.toString() : now.minute}:${(now.second < 10) ? "0" + now.second.toString() : now.second}";
   }
 }

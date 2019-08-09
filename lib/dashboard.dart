@@ -2,9 +2,13 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 
 import 'newspage.dart';
-import 'noconnection.dart';
 import 'settings.dart';
 import 'status.dart';
+import 'utils.dart';
+
+/// Dashboard
+///
+/// The main UI of the application.
 
 class Dashboard extends StatefulWidget {
   Dashboard({Key key, this.title}) : super(key: key);
@@ -14,93 +18,74 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  /// Use this to add or remove machines:
   static var machineNames = ["Mira", "Cetus", "Vesta", "Cooley", "Theta"];
-  List<GlobalKey<StatusState>> statusKeys =
-      new List<GlobalKey<StatusState>>(machineNames.length);
   final String title;
   String updatedTime;
   ConnectivityResult connectivity = ConnectivityResult.none;
   _DashboardState(this.title);
 
+  /// Runs before anything else
   @override
   void initState() {
     super.initState();
     _checkConnectivity();
-    updatedTime = _getTime();
+    updatedTime = getTime();
   }
 
+  /// Builds the widget, complete with Connectivity checking wrapper
   @override
   Widget build(BuildContext context) {
+    Widget activeWidget;
+    // Check to make sure the device is connected to the internet
     if (connectivity == ConnectivityResult.none) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-          actions: <Widget>[
-            new IconButton(
-                icon: const Icon(Icons.refresh), onPressed: _refreshStatus),
-            new IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Settings()));
-                }),
-            new IconButton(
-                icon: const Icon(Icons.bookmark),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              NewsPage(title: 'News & Announcements')));
-                })
-          ],
-        ),
-        body: RefreshIndicator(
-          child: NoConnection(),
-          onRefresh: _refreshStatus,
-        ),
-      );
+      activeWidget = NoConnection();
     } else {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-          actions: <Widget>[
-            new IconButton(
-                icon: const Icon(Icons.refresh), onPressed: _refreshStatus),
-            new IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Settings()));
-                }),
-            new IconButton(
-                icon: const Icon(Icons.bookmark),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              NewsPage(title: 'News & Announcements')));
-                })
-          ],
-        ),
-        body: RefreshIndicator(
-          child: _machineList(),
-          onRefresh: _refreshStatus,
-        ),
-      );
+      activeWidget = _machineList();
     }
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+        actions: <Widget>[
+          // Refresh Button
+          new IconButton(
+              icon: const Icon(Icons.refresh), onPressed: _refreshStatus),
+          // Settings Button
+          new IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => Settings()));
+              }),
+          // News Page Button
+          new IconButton(
+              icon: const Icon(Icons.bookmark),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            NewsPage(title: 'News & Announcements')));
+              })
+        ],
+      ),
+      body: RefreshIndicator(
+        child: activeWidget,
+        onRefresh: _refreshStatus,
+      ),
+    );
   }
 
+  /// Create the list of machines, one card per machine.
   Widget _machineList() {
     return ListView.builder(
         padding: const EdgeInsets.all(10.0),
         itemBuilder: (context, i) {
           if (i < machineNames.length) {
-            GlobalKey<StatusState> machineKey = new GlobalKey();
-            statusKeys[i] = machineKey;
-            return Status(machineNames[i], key: statusKeys[i]);
+            // Creates a Status card for the machine
+            return Status(machineNames[i]);
           } else if (i == machineNames.length) {
+            // Return the Last Updated time at the end
             return Card(
               child: Container(
                   padding: EdgeInsets.all(10.0),
@@ -112,11 +97,14 @@ class _DashboardState extends State<Dashboard> {
         });
   }
 
+  ///
+  /// Helper functions for refreshing and checking connectivity
+  ///
   Future<void> _refreshStatus() async {
     var tempCon = await Connectivity().checkConnectivity();
     this.setState(() {
       connectivity = tempCon;
-      updatedTime = _getTime();
+      updatedTime = getTime();
     });
   }
 
@@ -125,49 +113,5 @@ class _DashboardState extends State<Dashboard> {
     setState(() {
       connectivity = tempCon;
     });
-  }
-
-  String _getTime() {
-    String month;
-    DateTime now = DateTime.now();
-    switch (now.month) {
-      case 1:
-        month = "January";
-        break;
-      case 2:
-        month = "February";
-        break;
-      case 3:
-        month = "March";
-        break;
-      case 4:
-        month = "April";
-        break;
-      case 5:
-        month = "May";
-        break;
-      case 6:
-        month = "June";
-        break;
-      case 7:
-        month = "July";
-        break;
-      case 8:
-        month = "August";
-        break;
-      case 9:
-        month = "September";
-        break;
-      case 10:
-        month = "October";
-        break;
-      case 11:
-        month = "November";
-        break;
-      case 12:
-        month = "December";
-        break;
-    }
-    return "$month ${now.day}, ${now.hour}:${(now.minute < 10) ? "0" + now.minute.toString() : now.minute}:${(now.second < 10) ? "0" + now.second.toString() : now.second}";
   }
 }
