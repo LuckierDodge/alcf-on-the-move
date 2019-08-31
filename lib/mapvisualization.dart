@@ -340,8 +340,79 @@ class MapVisState extends State<MapVis> {
             }).toList()));
   }
 
-  /// TODO: Make a vis for Cooley
-  _cooleyVis() {}
+  /// Map vis for Cooley
+  /// Nodes are key based, but in a nice list like Theta, so we just iterate
+  _cooleyVis() {
+    List<Widget> widgetList = [];
+    List<Node> nodes = new List<Node>();
+    activity.nodeInfo.forEach((name, node) {
+      // Extract the nodes for each job and put a Node object in the list
+      if (node.state == "allocated") {
+        nodes.add(Node(name, node.jobid, node.color));
+      } else {
+        nodes.add(Node(name, 0, "#FFFFFF"));
+      }
+    });
+
+    // Add row visualizations
+    for (int i = 0; i < 6; i++) {
+      widgetList.add(ExpandableNotifier(
+          child: ExpandablePanel(
+        collapsed: _cooleyRack(false, nodes.sublist(i * 21, (i + 1) * 21), i),
+        expanded: _cooleyRack(true, nodes.sublist(i * 21, (i + 1) * 21), i),
+        tapHeaderToExpand: true,
+        tapBodyToCollapse: true,
+        hasIcon: false,
+      )));
+    }
+    return Column(children: widgetList);
+  }
+
+  /// Rack visualization for Cooley
+  _cooleyRack(bool expanded, List nodes, int i) {
+    List<Widget> widgetList = [];
+    widgetList.add(Text("Rack $i"));
+    // If expanded, add node grid
+    if (expanded) {
+      widgetList.add(_cooleyGrid(nodes));
+      // If collapsed, add bar vis
+    } else {
+      var nodeColors = _getNodeColors(nodes);
+      var nodeTotals = 21;
+      List<Widget> barList = [];
+      nodeColors.forEach((key, value) {
+        barList.add(Container(
+            width: MediaQuery.of(context).size.width * .9 * value / nodeTotals,
+            height: 40,
+            child: Card(color: parseColor(key))));
+      });
+      widgetList.add(Row(
+        children: barList,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      ));
+    }
+    widgetList.add(Divider());
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: widgetList,
+    );
+  }
+
+  /// Node Grid visualization for Cooley
+  _cooleyGrid(List nodeList) {
+    return Container(
+        width: MediaQuery.of(context).size.width * .9,
+        height: MediaQuery.of(context).size.width * .9 * .5,
+        padding: EdgeInsets.all(4),
+        child: GridView.count(
+            physics: NeverScrollableScrollPhysics(),
+            crossAxisCount: 7,
+            children: nodeList.map((node) {
+              return GridTile(
+                child: Container(child: Card(color: parseColor(node.color))),
+              );
+            }).toList()));
+  }
 
   /// Gets color distribution for a list of nodes
   _getNodeColors(List<Node> nodes) {
