@@ -17,8 +17,7 @@ samples, guidance on mobile development, and a full API reference.
 
 * main.dart: Entry point for the app, launches straight into the Dashboard page
 * dashboard.dart: Main page for the app, contains the list of machines and buttons to navigate to other pages
-    * machine.dart: custom widget that displays the usage of each machine. Tap to display additional info
-        * status.dart: widget that generates circular chart and summary statistics for a machine
+    * status.dart: custom widget that displays the usage of each machine. Tap to display additional info
         * mapvisualization.dart: displays a collapsible representation of the map visualization
         * joblist.dart: lists all the running and queued jobs, as well as reservations.
     * settings.dart: manage settings for the app, accessed by gear icon
