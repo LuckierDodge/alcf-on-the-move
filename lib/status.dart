@@ -20,6 +20,13 @@ class Status extends StatefulWidget {
 
 class StatusState extends State<Status> {
   final String name;
+  static var coresPerNode = {
+    "Mira": 16,
+    "Cetus": 16,
+    "Vesta": 16,
+    "Cooley": 12,
+    "Theta": 64
+  };
   Activity activity;
   int nodesUsed = 0;
   int nodesTotal = 0;
@@ -35,8 +42,9 @@ class StatusState extends State<Status> {
     try {
       Activity newActivity = await fetchActivity(name);
       var coreHours = 0.0;
-      newActivity.reservations
-          .forEach((res) => {coreHours += res.duration / 60 / 60});
+      newActivity.queuedJobs.forEach((job) => {
+            coreHours += job.walltime / 60 / 60 * job.nodes * coresPerNode[name]
+          });
       setState(() {
         activity = newActivity;
         _calculateNodesUsed();
@@ -71,8 +79,10 @@ class StatusState extends State<Status> {
             }
             _calculateNodesUsed();
             coreHoursScheduled = 0;
-            activity.reservations.forEach(
-                (res) => {coreHoursScheduled += res.duration / 60 / 60});
+            activity.queuedJobs.forEach((job) => {
+                  coreHoursScheduled +=
+                      job.walltime / 60 / 60 * job.nodes * coresPerNode[name]
+                });
             return _statusWidget();
           } else if (snapshot.hasError) {
             return Card(
