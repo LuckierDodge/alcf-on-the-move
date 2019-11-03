@@ -30,7 +30,8 @@ class JobListState extends State<JobList> {
 
     return Container(
         padding: EdgeInsets.all(5),
-        child: Column(
+        child: ListView(
+          shrinkWrap: true,
           children: <Widget>[
             // Running Jobs
             ExpandableNotifier(

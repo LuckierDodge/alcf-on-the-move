@@ -18,7 +18,7 @@ class Status extends StatefulWidget {
   StatusState createState() => StatusState(name);
 }
 
-class StatusState extends State<Status> {
+class StatusState extends State<Status> with SingleTickerProviderStateMixin {
   final String name;
   static var coresPerNode = {
     "Mira": 16,
@@ -30,12 +30,32 @@ class StatusState extends State<Status> {
   Activity activity;
   int nodesUsed = 0;
   int nodesTotal = 0;
+  TabController controller;
+  int tabIndex = 0;
   // Key used to update the Circular Charts
   final GlobalKey<AnimatedCircularChartState> _chartKey =
       new GlobalKey<AnimatedCircularChartState>();
   num coreHoursScheduled = 0;
 
   StatusState(this.name);
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TabController(length: 2, vsync: this, initialIndex: 0);
+    controller.addListener(() => {
+          if (controller.indexIsChanging)
+            setState(() {
+              tabIndex = controller.index;
+            })
+        });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   /// Grabs the latest activity data from status.alcf.anl.gov
   Future<void> updateStatus() async {
@@ -110,13 +130,29 @@ class StatusState extends State<Status> {
     return Card(
         child: ExpandablePanel(
       header: _statusCardHeader(),
-      expanded: Column(children: [
-        Divider(),
-        // Expandable, node by node visualization
-        MapVis(name, activity),
-        // List of running, queued and reserved jobs
-        JobList(activity),
-      ]),
+      expanded: Column(
+//            mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Divider(),
+          Container(
+            height: 40,
+            child: TabBar(
+              tabs: [
+                Icon(Icons.grid_on),
+                Icon(Icons.list),
+              ],
+              controller: controller,
+            ),
+          ),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: 400),
+            child: [
+              MapVis(name, activity),
+              JobList(activity),
+            ][tabIndex],
+          ),
+        ],
+      ),
       tapHeaderToExpand: true,
       tapBodyToCollapse: true,
       hasIcon: false,

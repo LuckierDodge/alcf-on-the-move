@@ -95,8 +95,9 @@ class MapVisState extends State<MapVis> {
       i++;
     });
 
-    return Column(
+    return ListView(
       children: widgetList,
+      shrinkWrap: true,
     );
   }
 
@@ -246,7 +247,10 @@ class MapVisState extends State<MapVis> {
       )));
     }
 
-    return Column(children: widgetList);
+    return ListView(
+      children: widgetList,
+      shrinkWrap: true,
+    );
   }
 
   /// Row visualization for Theta
@@ -365,7 +369,10 @@ class MapVisState extends State<MapVis> {
         hasIcon: false,
       )));
     }
-    return Column(children: widgetList);
+    return ListView(
+      children: widgetList,
+      shrinkWrap: true,
+    );
   }
 
   /// Rack visualization for Cooley
