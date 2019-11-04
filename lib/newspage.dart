@@ -128,14 +128,21 @@ class _NewsPageState extends State<NewsPage> {
                 child: Column(
                   children: [
                     Image.network(item.imageURL),
-                    Center(
-                        child: Text(
-                      item.title.toString(),
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    )),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 4.0),
+                      child: Center(
+                          child: Text(
+                        item.title.toString(),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      )),
+                    ),
                     Divider(),
-                    Center(child: Text(item.text.toString()))
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
+                      child: Center(child: Text(item.text.toString())),
+                    )
                   ],
                 ))));
   }
