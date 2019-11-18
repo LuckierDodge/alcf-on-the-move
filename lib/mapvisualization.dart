@@ -85,12 +85,23 @@ class MapVisState extends State<MapVis> {
     var i = 0;
     rowList.forEach((row) {
       widgetList.add(ExpandableNotifier(
-          child: ExpandablePanel(
-        collapsed: _mcvRow(false, row, i),
-        expanded: _mcvRow(true, row, i),
-        tapHeaderToExpand: true,
-        tapBodyToCollapse: true,
-        hasIcon: false,
+          child: Container(
+        padding: EdgeInsets.all(10.0),
+        child: ExpandablePanel(
+          header: Container(
+              child: Text(
+                "Row " + i.toString(),
+                textScaleFactor: 1.2,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              width: double.infinity,
+              padding: EdgeInsets.all(10)),
+          collapsed: _mcvRow(false, row, i),
+          expanded: _mcvRow(true, row, i),
+          tapHeaderToExpand: true,
+          tapBodyToCollapse: false,
+          hasIcon: true,
+        ),
       )));
       i++;
     });
@@ -104,21 +115,23 @@ class MapVisState extends State<MapVis> {
   /// Row visualization for Mira/Cetus/Vesta
   _mcvRow(bool expanded, List rackList, int i) {
     List<Widget> widgetList = [];
-    widgetList.add(Text(
-      "Row " + i.toString(),
-      textScaleFactor: 1.2,
-      style: TextStyle(fontWeight: FontWeight.bold),
-    ));
     // When expanded, show the Rack Visualizations
     if (expanded) {
       rackList.forEach((rack) {
         widgetList.add(ExpandableNotifier(
             child: ExpandablePanel(
+          header: Container(
+            child: Text(
+              "Rack R" + rack[0][0].id.toString().substring(1, 3),
+            ),
+            padding: EdgeInsets.all(10),
+            width: double.infinity,
+          ),
           collapsed: _mcvRack(false, rack),
           expanded: _mcvRack(true, rack),
           tapHeaderToExpand: true,
-          tapBodyToCollapse: true,
-          hasIcon: false,
+          tapBodyToCollapse: false,
+          hasIcon: true,
         )));
       });
       // When collapsed, show the Bar visualization
@@ -141,7 +154,8 @@ class MapVisState extends State<MapVis> {
       List<Widget> barList = [];
       nodeColors.forEach((key, value) {
         barList.add(Container(
-            width: MediaQuery.of(context).size.width * .9 * value / nodeTotals,
+            width:
+                (MediaQuery.of(context).size.width - 48) * value / nodeTotals,
             height: 40,
             child: Card(color: parseColor(key))));
       });
@@ -161,7 +175,6 @@ class MapVisState extends State<MapVis> {
   _mcvRack(bool expanded, List mpList) {
     List<Widget> widgetList = [];
     List<Widget> subList = [];
-    widgetList.add(Text("Rack R" + mpList[0][0].id.toString().substring(1, 3)));
     // When expanded, show the Midplanes Visualization
     if (expanded) {
       mpList.forEach((mp) {
@@ -183,7 +196,8 @@ class MapVisState extends State<MapVis> {
           activity.dimensions.midplanes * activity.dimensions.nodecards;
       nodeColors.forEach((key, value) {
         subList.add(Container(
-            width: MediaQuery.of(context).size.width * .9 * value / nodeTotals,
+            width:
+                (MediaQuery.of(context).size.width - 48) * value / nodeTotals,
             height: 40,
             child: Card(color: parseColor(key))));
       });
@@ -202,8 +216,8 @@ class MapVisState extends State<MapVis> {
   /// Midplanes visualization for Mira/Cetus/Vesta
   _mcvMP(List nodeList) {
     return Container(
-        width: MediaQuery.of(context).size.width * .45,
-        height: MediaQuery.of(context).size.width * .45,
+        width: (MediaQuery.of(context).size.width - 48) * .5,
+        height: (MediaQuery.of(context).size.width - 48) * .5,
         padding: EdgeInsets.all(4),
         child: GridView.count(
             physics: NeverScrollableScrollPhysics(),
@@ -225,7 +239,7 @@ class MapVisState extends State<MapVis> {
       // Extract the nodes for each job and put a Node object in it's index
       List<int> nodeIds = hyphen_range((job.location as List)[0]);
       nodeIds.forEach((node) {
-        nodes[node - 1] = Node(node.toString(), job.jobid, job.color);
+        nodes[node] = Node(node.toString(), job.jobid, job.color);
       });
     });
     // Go through all the nodes and fill in unused nodes with a blank node object
@@ -238,12 +252,24 @@ class MapVisState extends State<MapVis> {
     // Add row visualizations
     for (int i = 0; i < 2; i++) {
       widgetList.add(ExpandableNotifier(
-          child: ExpandablePanel(
-        collapsed: _thetaRow(false, nodes.sublist(i * 2304, (i + 1) * 2304), i),
-        expanded: _thetaRow(true, nodes.sublist(i * 2304, (i + 1) * 2304), i),
-        tapHeaderToExpand: true,
-        tapBodyToCollapse: true,
-        hasIcon: false,
+          child: Container(
+        padding: EdgeInsets.all(10),
+        child: ExpandablePanel(
+          header: Container(
+            padding: EdgeInsets.all(10),
+            child: Text(
+              "Row " + i.toString(),
+              textScaleFactor: 1.2,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          collapsed:
+              _thetaRow(false, nodes.sublist(i * 2304, (i + 1) * 2304), i),
+          expanded: _thetaRow(true, nodes.sublist(i * 2304, (i + 1) * 2304), i),
+          tapHeaderToExpand: true,
+          tapBodyToCollapse: false,
+          hasIcon: true,
+        ),
       )));
     }
 
@@ -256,23 +282,22 @@ class MapVisState extends State<MapVis> {
   /// Row visualization for Theta
   _thetaRow(bool expanded, List nodes, int i) {
     List<Widget> widgetList = [];
-    widgetList.add(Text(
-      "Row " + i.toString(),
-      textScaleFactor: 1.2,
-      style: TextStyle(fontWeight: FontWeight.bold),
-    ));
     // If expanded, add Rack visualizations
     if (expanded) {
       for (int j = 0; j < 12; j++) {
         widgetList.add(ExpandableNotifier(
             child: ExpandablePanel(
+          header: Container(
+            padding: EdgeInsets.all(10),
+            child: Text("c$j-$i"),
+          ),
           collapsed:
               _thetaRack(false, nodes.sublist(j * 192, (j + 1) * 192), i, j),
           expanded:
               _thetaRack(true, nodes.sublist(j * 192, (j + 1) * 192), i, j),
           tapHeaderToExpand: true,
-          tapBodyToCollapse: true,
-          hasIcon: false,
+          tapBodyToCollapse: false,
+          hasIcon: true,
         )));
       }
       // If collapsed, show bar vis
@@ -282,7 +307,9 @@ class MapVisState extends State<MapVis> {
       List<Widget> barList = [];
       nodeColors.forEach((key, value) {
         barList.add(Container(
-            width: MediaQuery.of(context).size.width * .9 * value / nodeTotals,
+//          padding: EdgeInsets.all(10),
+            width:
+                (MediaQuery.of(context).size.width - 48) * value / nodeTotals,
             height: 40,
             child: Card(color: parseColor(key))));
       });
@@ -301,7 +328,6 @@ class MapVisState extends State<MapVis> {
   /// Rack visualization for Theta
   _thetaRack(bool expanded, List nodes, int i, int j) {
     List<Widget> widgetList = [];
-    widgetList.add(Text("c$j-$i"));
     // If expanded, add node grid
     if (expanded) {
       widgetList.add(_thetaGrid(nodes));
@@ -312,7 +338,8 @@ class MapVisState extends State<MapVis> {
       List<Widget> barList = [];
       nodeColors.forEach((key, value) {
         barList.add(Container(
-            width: MediaQuery.of(context).size.width * .9 * value / nodeTotals,
+            width:
+                (MediaQuery.of(context).size.width - 48) * value / nodeTotals,
             height: 40,
             child: Card(color: parseColor(key))));
       });
@@ -331,8 +358,8 @@ class MapVisState extends State<MapVis> {
   /// Node Grid visualization for Theta
   _thetaGrid(List nodeList) {
     return Container(
-        width: MediaQuery.of(context).size.width * .9,
-        height: MediaQuery.of(context).size.width * .9 * .75,
+        width: (MediaQuery.of(context).size.width - 48),
+        height: (MediaQuery.of(context).size.width - 48) * .75,
         padding: EdgeInsets.all(4),
         child: GridView.count(
             physics: NeverScrollableScrollPhysics(),
@@ -361,12 +388,23 @@ class MapVisState extends State<MapVis> {
     // Add row visualizations
     for (int i = 0; i < 6; i++) {
       widgetList.add(ExpandableNotifier(
-          child: ExpandablePanel(
-        collapsed: _cooleyRack(false, nodes.sublist(i * 21, (i + 1) * 21), i),
-        expanded: _cooleyRack(true, nodes.sublist(i * 21, (i + 1) * 21), i),
-        tapHeaderToExpand: true,
-        tapBodyToCollapse: true,
-        hasIcon: false,
+          child: Container(
+        padding: EdgeInsets.all(10),
+        child: ExpandablePanel(
+          header: Container(
+            child: Text(
+              "Rack $i",
+              textScaleFactor: 1.2,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            padding: EdgeInsets.all(10),
+          ),
+          collapsed: _cooleyRack(false, nodes.sublist(i * 21, (i + 1) * 21), i),
+          expanded: _cooleyRack(true, nodes.sublist(i * 21, (i + 1) * 21), i),
+          tapHeaderToExpand: true,
+          tapBodyToCollapse: false,
+          hasIcon: true,
+        ),
       )));
     }
     return ListView(
@@ -378,7 +416,6 @@ class MapVisState extends State<MapVis> {
   /// Rack visualization for Cooley
   _cooleyRack(bool expanded, List nodes, int i) {
     List<Widget> widgetList = [];
-    widgetList.add(Text("Rack $i"));
     // If expanded, add node grid
     if (expanded) {
       widgetList.add(_cooleyGrid(nodes));
@@ -389,7 +426,8 @@ class MapVisState extends State<MapVis> {
       List<Widget> barList = [];
       nodeColors.forEach((key, value) {
         barList.add(Container(
-            width: MediaQuery.of(context).size.width * .9 * value / nodeTotals,
+            width:
+                (MediaQuery.of(context).size.width - 48) * value / nodeTotals,
             height: 40,
             child: Card(color: parseColor(key))));
       });
@@ -408,8 +446,8 @@ class MapVisState extends State<MapVis> {
   /// Node Grid visualization for Cooley
   _cooleyGrid(List nodeList) {
     return Container(
-        width: MediaQuery.of(context).size.width * .9,
-        height: MediaQuery.of(context).size.width * .9 * .5,
+        width: (MediaQuery.of(context).size.width - 48),
+        height: (MediaQuery.of(context).size.width - 48) * .5,
         padding: EdgeInsets.all(4),
         child: GridView.count(
             physics: NeverScrollableScrollPhysics(),

@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-////import 'dart:io';
-
 import 'package:http/http.dart' as http;
 import 'package:json_annotation/json_annotation.dart';
 
@@ -32,6 +30,59 @@ Future<Activity> fetchActivity(String machine) async {
     // itself failing
     throw Exception('Failed to load Machine activity for $machine');
   }
+}
+
+Future<Activity> fetchActivityDummy(String machine) async {
+  final response = await http.get(
+      'https://status.alcf.anl.gov/${machine.toLowerCase()}/activity.json');
+  return Activity.fromJson({
+    "dimensions": {
+      "midplanes": 2,
+      "nodecards": 16,
+      "racks": 2,
+      "rows": 2,
+      "subdivisions": 2
+    },
+    "nodeinfo": {
+      "1": {"id": "001", "state": "fake", "color": "#aaaaaa"}
+    },
+    "queued": [
+      {
+        "jobid": 1,
+        "mode": "fake",
+        "nodes": 1,
+        "project": "AOTM",
+        "queue": "fake",
+        "queuedtimef": "100",
+        "score": 56.4,
+        "starttime": "nope",
+        "state": "queued",
+        "submittime": 0.0,
+        "walltime": 1,
+        "walltimef": "1 minute"
+      }
+    ],
+    "running": [
+      {
+        "color": "#aaaaaa",
+        "jobid": 1,
+        "location": 1,
+        "mode": "fake",
+        "nodes": 1,
+        "project": "AOTM",
+        "queue": "fake",
+        "runtimef": "1",
+        "starttime": "nope",
+        "state": "running",
+        "submittime": 0.0,
+        "walltime": 1,
+        "walltimef": "1 minute"
+      }
+    ],
+    "reservation": [],
+    "updated": 0,
+    "maint": false
+  });
 }
 
 // This function is the solution to a problem Flutter had at one point with SSL Certs

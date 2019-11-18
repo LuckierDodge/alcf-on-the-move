@@ -1,3 +1,4 @@
+import 'package:conditional_builder/conditional_builder.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
@@ -32,6 +33,8 @@ class StatusState extends State<Status> with SingleTickerProviderStateMixin {
   int nodesTotal = 0;
   TabController controller;
   int tabIndex = 0;
+  ExpandableController _expandableController = new ExpandableController();
+  bool isExpanded = false;
   // Key used to update the Circular Charts
   final GlobalKey<AnimatedCircularChartState> _chartKey =
       new GlobalKey<AnimatedCircularChartState>();
@@ -49,6 +52,14 @@ class StatusState extends State<Status> with SingleTickerProviderStateMixin {
               tabIndex = controller.index;
             })
         });
+    _expandableController.addListener(() => {
+          if (_expandableController.expanded)
+            {
+              setState(() {
+                isExpanded = _expandableController.expanded;
+              })
+            }
+        });
   }
 
   @override
@@ -60,7 +71,8 @@ class StatusState extends State<Status> with SingleTickerProviderStateMixin {
   /// Grabs the latest activity data from status.alcf.anl.gov
   Future<void> updateStatus() async {
     try {
-      Activity newActivity = await fetchActivity(name);
+//      Activity newActivity = await fetchActivity(name);
+      Activity newActivity = await fetchActivityDummy(name);
       var coreHours = 0.0;
       newActivity.queuedJobs.forEach((job) => {
             coreHours += job.walltime / 60 / 60 * job.nodes * coresPerNode[name]
@@ -82,6 +94,7 @@ class StatusState extends State<Status> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return FutureBuilder<Activity>(
         future: fetchActivity(name),
+//        future: fetchActivityDummy(name),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             activity = snapshot.data;
@@ -128,35 +141,39 @@ class StatusState extends State<Status> with SingleTickerProviderStateMixin {
   /// Expandable Status widget
   Widget _statusWidget() {
     return Card(
-        child: ExpandablePanel(
-      header: _statusCardHeader(),
-      expanded: Column(
-//            mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Divider(),
-          Container(
-            height: 40,
-            child: TabBar(
-              tabs: [
-                Icon(Icons.grid_on),
-                Icon(Icons.list),
-              ],
-              controller: controller,
-            ),
+      child: ExpandablePanel(
+        header: _statusCardHeader(),
+        controller: _expandableController,
+        expanded: ConditionalBuilder(
+          condition: isExpanded,
+          builder: (context) => Column(
+            children: <Widget>[
+              Divider(),
+              Container(
+                height: 40,
+                child: TabBar(
+                  tabs: [
+                    Icon(Icons.grid_on),
+                    Icon(Icons.list),
+                  ],
+                  controller: controller,
+                ),
+              ),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: 400),
+                child: [
+                  MapVis(name, activity),
+                  JobList(activity),
+                ][tabIndex],
+              ),
+            ],
           ),
-          ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: 400),
-            child: [
-              MapVis(name, activity),
-              JobList(activity),
-            ][tabIndex],
-          ),
-        ],
+        ),
+        tapHeaderToExpand: true,
+        tapBodyToCollapse: false,
+        hasIcon: false,
       ),
-      tapHeaderToExpand: true,
-      tapBodyToCollapse: true,
-      hasIcon: false,
-    ));
+    );
   }
 
   /// Creates a Circular chart and Summary statistics

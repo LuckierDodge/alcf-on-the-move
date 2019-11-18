@@ -23,51 +23,126 @@ class JobListState extends State<JobList> {
 
   /// Builds the widget
   @override
+//  Widget build(BuildContext context) {
+//    var runningJobs = activity.runningJobs.length;
+//    var queuedJobs = activity.queuedJobs.length;
+//    var reservations = activity.reservations.length;
+//
+//    return Container(
+//        padding: EdgeInsets.all(5),
+//        child: ListView(
+//          shrinkWrap: true,
+//          children: <Widget>[
+//            // Running Jobs
+//            Card(
+//              elevation: 10,
+//              child: Container(
+//                padding: EdgeInsets.all(2.0),
+//                child: ExpandableNotifier(
+//                  child: Container(
+//                    padding: EdgeInsets.all(2.0),
+//                    child: ExpandablePanel(
+//                      header: Container(
+//                        padding: EdgeInsets.all(12.0),
+//                        alignment: Alignment.center,
+//                        child: Text(
+//                          "$runningJobs Running Jobs",
+//                          style: TextStyle(fontWeight: FontWeight.bold),
+//                          textAlign: TextAlign.left,
+//                        ),
+//                      ),
+//                      expanded: _runningJobs(),
+//                    ),
+//                  ),
+//                ),
+//              ),
+//            ),
+//            // Queued Jobs
+//            Card(
+//              elevation: 10,
+//              child: Container(
+//                padding: EdgeInsets.all(2.0),
+//                child: ExpandableNotifier(
+//                  child: ExpandablePanel(
+//                    header: Text(
+//                      "$queuedJobs Queued Jobs",
+//                      style: TextStyle(fontWeight: FontWeight.bold),
+//                    ),
+//                    expanded: _queuedJobs(),
+//                  ),
+//                ),
+//              ),
+//            ),
+//            // Reservations
+//            Card(
+//              elevation: 10,
+//              child: Container(
+//                padding: EdgeInsets.all(2.0),
+//                child: ExpandableNotifier(
+//                  child: ExpandablePanel(
+//                      header: Text(
+//                        "$reservations Reservations",
+//                        style: TextStyle(fontWeight: FontWeight.bold),
+//                      ),
+//                      expanded: _reservations()),
+//                ),
+//              ),
+//            ),
+//          ],
+//        ));
+//  }
+
   Widget build(BuildContext context) {
     var runningJobs = activity.runningJobs.length;
     var queuedJobs = activity.queuedJobs.length;
     var reservations = activity.reservations.length;
+    return ListView.builder(
+        padding: const EdgeInsets.all(10.0),
+        shrinkWrap: true,
+        itemBuilder: (context, i) {
+          if (i == 0) {
+            return _listCard("$runningJobs Running Jobs", _runningJobs());
+          } else if (i == 1) {
+            return _listCard("$queuedJobs Queued Jobs", _queuedJobs());
+          } else if (i == 2) {
+            return _listCard("$reservations Reservations", _reservations());
+          } else {
+            return null;
+          }
+        });
+  }
 
-    return Container(
-        padding: EdgeInsets.all(5),
-        child: ListView(
-          shrinkWrap: true,
-          children: <Widget>[
-            // Running Jobs
-            ExpandableNotifier(
-              child: ExpandablePanel(
-                header: Text(
-                  "$runningJobs Running Jobs",
+  _listCard(String title, Widget subWidget) {
+    return Card(
+      elevation: 10,
+      borderOnForeground: true,
+      child: Container(
+        padding: EdgeInsets.all(2.0),
+        child: ExpandableNotifier(
+          child: Container(
+            padding: EdgeInsets.all(2.0),
+            child: ExpandablePanel(
+              hasIcon: false,
+              headerAlignment: ExpandablePanelHeaderAlignment.center,
+              header: Container(
+                padding: EdgeInsets.all(12.0),
+                alignment: Alignment.center,
+                child: Text(
+                  title,
                   style: TextStyle(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.left,
                 ),
-                expanded: _runningJobs(),
               ),
+              expanded: subWidget,
             ),
-            // Queued Jobs
-            ExpandableNotifier(
-              child: ExpandablePanel(
-                header: Text(
-                  "$queuedJobs Queued Jobs",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                expanded: _queuedJobs(),
-              ),
-            ),
-            // Reservations
-            ExpandableNotifier(
-              child: ExpandablePanel(
-                  header: Text(
-                    "$reservations Reservations",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  expanded: _reservations()),
-            ),
-          ],
-        ));
+          ),
+        ),
+      ),
+    );
   }
 
   /// Displays all the running jobs
-  _runningJobs() {
+  Widget _runningJobs() {
     List<Widget> widgetList = [];
     activity.runningJobs.forEach((job) {
       widgetList.add(Divider());
@@ -132,8 +207,11 @@ class JobListState extends State<JobList> {
         ),
       )));
     });
-    return Column(
-      children: widgetList,
+    return Container(
+      padding: EdgeInsets.all(10.0),
+      child: Column(
+        children: widgetList,
+      ),
     );
   }
 
