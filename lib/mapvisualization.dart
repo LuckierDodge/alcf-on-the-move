@@ -11,7 +11,6 @@ import 'utils.dart';
 ///
 /// Unfortunately, there's a frustrating amount of machine specific code thanks
 /// to the way the data comes in.
-
 class MapVis extends StatefulWidget {
   MapVis(this.name, this.activity, {Key key}) : super(key: key);
   final String name;
@@ -33,6 +32,123 @@ class MapVisState extends State<MapVis> {
   final Activity activity;
 
   MapVisState(this.name, this.activity);
+
+  Widget NodeCard(String color) {
+    return InkWell(
+      onTap: () {
+        if (color != '#FFFFFF') _launchDialog(color);
+      },
+      child: Card(
+        color: parseColor(color),
+      ),
+    );
+  }
+
+  Future<void> _launchDialog(String color) async {
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          RunningJob runningJob;
+          activity.runningJobs.forEach((job) {
+            if (job.color == color) runningJob = job;
+          });
+          if (runningJob == null)
+            return AlertDialog(title: Text('Missing Job'), actions: <Widget>[
+              FlatButton(
+                  child: Text('Close'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  })
+            ]);
+          return AlertDialog(
+              title: Text(runningJob.project),
+              content: SingleChildScrollView(
+                child: Column(children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text("JobID: "),
+                      Text(
+                        runningJob.jobid.toString(),
+                        softWrap: true,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text("Queue: "),
+                      Text(
+                        runningJob.queue.toString(),
+                        softWrap: true,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text("Run Time: "),
+                      Text(
+                        runningJob.runtimef.toString(),
+                        softWrap: true,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text("Wall Time: "),
+                      Text(
+                        runningJob.walltimef.toString(),
+                        softWrap: true,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text("Location: "),
+                      Flexible(
+                        flex: 1,
+                        child: Text(
+                          runningJob.location.toString(),
+                          softWrap: true,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text("Nodes Used: "),
+                      Text(
+                        runningJob.nodes.toString(),
+                        softWrap: true,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text("Mode: "),
+                      Text(
+                        runningJob.mode.toString(),
+                        softWrap: true,
+                      ),
+                    ],
+                  ),
+                ]),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                    child: Text('Close'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    })
+              ]);
+        });
+  }
 
   /// Builds the widget depending on the machine in question
   @override
@@ -157,7 +273,7 @@ class MapVisState extends State<MapVis> {
             width:
                 (MediaQuery.of(context).size.width - 48) * value / nodeTotals,
             height: 40,
-            child: Card(color: parseColor(key))));
+            child: NodeCard(key)));
       });
       widgetList.add(Row(
         children: barList,
@@ -199,7 +315,7 @@ class MapVisState extends State<MapVis> {
             width:
                 (MediaQuery.of(context).size.width - 48) * value / nodeTotals,
             height: 40,
-            child: Card(color: parseColor(key))));
+            child: NodeCard(key)));
       });
     }
     widgetList.add(Row(
@@ -224,7 +340,7 @@ class MapVisState extends State<MapVis> {
             crossAxisCount: 4,
             children: nodeList.map((node) {
               return GridTile(
-                child: Container(child: Card(color: parseColor(node.color))),
+                child: Container(child: NodeCard(node.color)),
               );
             }).toList()));
   }
@@ -311,7 +427,7 @@ class MapVisState extends State<MapVis> {
             width:
                 (MediaQuery.of(context).size.width - 48) * value / nodeTotals,
             height: 40,
-            child: Card(color: parseColor(key))));
+            child: NodeCard(key)));
       });
       widgetList.add(Row(
         children: barList,
@@ -341,7 +457,7 @@ class MapVisState extends State<MapVis> {
             width:
                 (MediaQuery.of(context).size.width - 48) * value / nodeTotals,
             height: 40,
-            child: Card(color: parseColor(key))));
+            child: NodeCard(key)));
       });
       widgetList.add(Row(
         children: barList,
@@ -366,7 +482,7 @@ class MapVisState extends State<MapVis> {
             crossAxisCount: 16,
             children: nodeList.map((node) {
               return GridTile(
-                child: Container(child: Card(color: parseColor(node.color))),
+                child: Container(child: NodeCard(node.color)),
               );
             }).toList()));
   }
@@ -429,7 +545,7 @@ class MapVisState extends State<MapVis> {
             width:
                 (MediaQuery.of(context).size.width - 48) * value / nodeTotals,
             height: 40,
-            child: Card(color: parseColor(key))));
+            child: NodeCard(key)));
       });
       widgetList.add(Row(
         children: barList,
@@ -454,7 +570,7 @@ class MapVisState extends State<MapVis> {
             crossAxisCount: 7,
             children: nodeList.map((node) {
               return GridTile(
-                child: Container(child: Card(color: parseColor(node.color))),
+                child: Container(child: NodeCard(node.color)),
               );
             }).toList()));
   }

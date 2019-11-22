@@ -7,8 +7,6 @@ import 'utils.dart';
 /// Job List
 ///
 /// Lists all of the running, queued, and reserved jobs for a machine
-/// TODO: Make it not ugly
-
 class JobList extends StatefulWidget {
   JobList(this.activity, {Key key}) : super(key: key);
   final Activity activity;
@@ -23,75 +21,6 @@ class JobListState extends State<JobList> {
 
   /// Builds the widget
   @override
-//  Widget build(BuildContext context) {
-//    var runningJobs = activity.runningJobs.length;
-//    var queuedJobs = activity.queuedJobs.length;
-//    var reservations = activity.reservations.length;
-//
-//    return Container(
-//        padding: EdgeInsets.all(5),
-//        child: ListView(
-//          shrinkWrap: true,
-//          children: <Widget>[
-//            // Running Jobs
-//            Card(
-//              elevation: 10,
-//              child: Container(
-//                padding: EdgeInsets.all(2.0),
-//                child: ExpandableNotifier(
-//                  child: Container(
-//                    padding: EdgeInsets.all(2.0),
-//                    child: ExpandablePanel(
-//                      header: Container(
-//                        padding: EdgeInsets.all(12.0),
-//                        alignment: Alignment.center,
-//                        child: Text(
-//                          "$runningJobs Running Jobs",
-//                          style: TextStyle(fontWeight: FontWeight.bold),
-//                          textAlign: TextAlign.left,
-//                        ),
-//                      ),
-//                      expanded: _runningJobs(),
-//                    ),
-//                  ),
-//                ),
-//              ),
-//            ),
-//            // Queued Jobs
-//            Card(
-//              elevation: 10,
-//              child: Container(
-//                padding: EdgeInsets.all(2.0),
-//                child: ExpandableNotifier(
-//                  child: ExpandablePanel(
-//                    header: Text(
-//                      "$queuedJobs Queued Jobs",
-//                      style: TextStyle(fontWeight: FontWeight.bold),
-//                    ),
-//                    expanded: _queuedJobs(),
-//                  ),
-//                ),
-//              ),
-//            ),
-//            // Reservations
-//            Card(
-//              elevation: 10,
-//              child: Container(
-//                padding: EdgeInsets.all(2.0),
-//                child: ExpandableNotifier(
-//                  child: ExpandablePanel(
-//                      header: Text(
-//                        "$reservations Reservations",
-//                        style: TextStyle(fontWeight: FontWeight.bold),
-//                      ),
-//                      expanded: _reservations()),
-//                ),
-//              ),
-//            ),
-//          ],
-//        ));
-//  }
-
   Widget build(BuildContext context) {
     var runningJobs = activity.runningJobs.length;
     var queuedJobs = activity.queuedJobs.length;
@@ -154,21 +83,38 @@ class JobListState extends State<JobList> {
               child: Card(
                   child: Text(job.jobid.toString()),
                   color: parseColor(job.color))),
-          Row(
-            children: <Widget>[Text("Project: "), Text(job.project.toString())],
-          ),
         ]),
+        collapsed: Container(
+            padding: EdgeInsets.all(5.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text("Project: "),
+                Text(job.project.toString()),
+              ],
+            )),
         expanded: Column(
           children: <Widget>[
             Container(
+                padding: EdgeInsets.all(5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text("Project: "),
+                    Text(job.project.toString()),
+                  ],
+                )),
+            Container(
               padding: EdgeInsets.all(5.0),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[Text("Queue: "), Text(job.queue.toString())],
               ),
             ),
             Container(
                 padding: EdgeInsets.all(5.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text("Run Time: "),
                     Text(job.runtimef.toString())
@@ -177,6 +123,7 @@ class JobListState extends State<JobList> {
             Container(
                 padding: EdgeInsets.all(5.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text("Wall Time: "),
                     Text(job.walltimef.toString())
@@ -185,6 +132,7 @@ class JobListState extends State<JobList> {
             Container(
                 padding: EdgeInsets.all(5.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text("Location: "),
                     Text(job.location.toString())
@@ -193,6 +141,7 @@ class JobListState extends State<JobList> {
             Container(
                 padding: EdgeInsets.all(5.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text("Nodes Used: "),
                     Text(job.nodes.toString())
@@ -201,6 +150,7 @@ class JobListState extends State<JobList> {
             Container(
                 padding: EdgeInsets.all(5.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[Text("Mode: "), Text(job.mode.toString())],
                 )),
           ],
@@ -230,20 +180,31 @@ class JobListState extends State<JobList> {
                   job.jobid.toString(),
                 ),
               )),
-          Container(
-              padding: EdgeInsets.all(5.0),
-              child: Row(
-                children: <Widget>[
-                  Text("Project: "),
-                  Text(job.project.toString())
-                ],
-              )),
         ]),
+        collapsed: Container(
+            padding: EdgeInsets.all(5.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text("Project: "),
+                Text(job.project.toString())
+              ],
+            )),
         expanded: Column(
           children: <Widget>[
             Container(
                 padding: EdgeInsets.all(5.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text("Project: "),
+                    Text(job.project.toString())
+                  ],
+                )),
+            Container(
+                padding: EdgeInsets.all(5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text("Queue: "),
                     Text(job.queue.toString())
@@ -252,6 +213,7 @@ class JobListState extends State<JobList> {
             Container(
                 padding: EdgeInsets.all(5.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text("Queued Time: "),
                     Text(job.queuedtimef.toString())
@@ -260,6 +222,7 @@ class JobListState extends State<JobList> {
             Container(
                 padding: EdgeInsets.all(5.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text("Wall Time: "),
                     Text(job.walltimef.toString())
@@ -268,6 +231,7 @@ class JobListState extends State<JobList> {
             Container(
                 padding: EdgeInsets.all(5.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text("Score: "),
                     Text(job.score.toString())
@@ -276,6 +240,7 @@ class JobListState extends State<JobList> {
             Container(
                 padding: EdgeInsets.all(5.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text("Nodes Requested: "),
                     Text(job.nodes.toString())
@@ -284,6 +249,7 @@ class JobListState extends State<JobList> {
             Container(
                 padding: EdgeInsets.all(5.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[Text("Mode: "), Text(job.mode.toString())],
                 )),
           ],
@@ -310,20 +276,28 @@ class JobListState extends State<JobList> {
                   job.name.toString(),
                 ),
               )),
-          Container(
-              padding: EdgeInsets.all(5.0),
-              child: Row(
-                children: <Widget>[
-                  Text("Start: "),
-                  Text(job.startf.toString())
-                ],
-              )),
         ]),
+        collapsed: Container(
+            padding: EdgeInsets.all(5.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[Text("Start: "), Text(job.startf.toString())],
+            )),
         expanded: Column(
           children: <Widget>[
             Container(
                 padding: EdgeInsets.all(5.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text("Start: "),
+                    Text(job.startf.toString())
+                  ],
+                )),
+            Container(
+                padding: EdgeInsets.all(5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text("Queue: "),
                     Text(job.queue.toString())
@@ -332,6 +306,7 @@ class JobListState extends State<JobList> {
             Container(
                 padding: EdgeInsets.all(5.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text("Duration: "),
                     Text(job.durationf.toString())
@@ -340,6 +315,7 @@ class JobListState extends State<JobList> {
             Container(
                 padding: EdgeInsets.all(5.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[Text("T-: "), Text(job.tminus.toString())],
                 )),
           ],
