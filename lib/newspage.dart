@@ -2,7 +2,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'alcfscraper.dart';
+import 'alcf_rss.dart';
 import 'settings.dart';
 import 'utils.dart';
 
@@ -70,11 +70,11 @@ class _NewsPageState extends State<NewsPage> {
 
   /// The actual list of announcements
   Widget _newsFeed() {
-    return FutureBuilder<NewsContent>(
-        future: scrape(),
+    return FutureBuilder<List<CarouselItem>>(
+        future: ALCFRSS().getFeed(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            var items = snapshot.data.carouselItems;
+            var items = snapshot.data;
             return ListView.builder(
                 padding: const EdgeInsets.all(10.0),
                 itemBuilder: (context, i) {
@@ -141,7 +141,11 @@ class _NewsPageState extends State<NewsPage> {
                     Divider(),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
-                      child: Center(child: Text(item.text.toString())),
+                      child: Center(
+                          child: Text(item.text.toString().replaceAll(
+                              RegExp(r"<[^>]*>",
+                                  multiLine: true, caseSensitive: true),
+                              ''))),
                     )
                   ],
                 ))));

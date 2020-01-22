@@ -33,6 +33,7 @@ dependencies:
   expandable: ^3.0.0+1
   tree_view: ^0.0.5
   conditional_builder: ^1.0.2
+  webfeed: ^0.4.2
 
 dev_dependencies:
   flutter_test:

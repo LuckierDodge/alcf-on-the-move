@@ -19,7 +19,8 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   /// Use this to add or remove machines:
-  static var machineNames = ["Mira", "Cetus", "Vesta", "Cooley", "Theta"];
+  static var machineNames = ["Cooley", "Theta"];
+  List<Widget> machineStatuses = [];
   final String title;
   String updatedTime;
   ConnectivityResult connectivity = ConnectivityResult.none;
@@ -31,6 +32,7 @@ class _DashboardState extends State<Dashboard> {
     super.initState();
     _checkConnectivity();
     updatedTime = getTime();
+    machineStatuses = _getMachineStatuses();
   }
 
   /// Builds the widget, complete with Connectivity checking wrapper
@@ -81,10 +83,10 @@ class _DashboardState extends State<Dashboard> {
     return ListView.builder(
         padding: const EdgeInsets.all(10.0),
         itemBuilder: (context, i) {
-          if (i < machineNames.length) {
+          if (i < machineStatuses.length) {
             // Creates a Status card for the machine
-            return Status(machineNames[i]);
-          } else if (i == machineNames.length) {
+            return machineStatuses[i];
+          } else if (i == machineStatuses.length) {
             // Return the Last Updated time at the end
             return Card(
               child: Container(
@@ -97,15 +99,44 @@ class _DashboardState extends State<Dashboard> {
         });
   }
 
-  ///
-  /// Helper functions for refreshing and checking connectivity
-  ///
-  Future<void> _refreshStatus() async {
+  List<Widget> _getMachineStatuses() {
+    List<Widget> newStatuses = [];
+    machineNames.forEach((machine) {
+      newStatuses.add(Status(machine));
+    });
+    return newStatuses;
+  }
+
+  stepOne() {
+    this.setState(() {
+      machineStatuses = [];
+    });
+  }
+
+  Future<void> stepTwo() async {
     var tempCon = await Connectivity().checkConnectivity();
     this.setState(() {
       connectivity = tempCon;
       updatedTime = getTime();
+      machineStatuses = _getMachineStatuses();
     });
+  }
+
+  ///
+  /// Helper functions for refreshing and checking connectivity
+  ///
+  Future<void> _refreshStatus() async {
+//    var tempCon = await Connectivity().checkConnectivity();
+//    this.setState(() {
+//      machineStatuses = [];
+//    });
+//    this.setState(() {
+//      connectivity = tempCon;
+//      updatedTime = getTime();
+//      machineStatuses = _getMachineStatuses();
+//    });
+    stepOne();
+    stepTwo();
   }
 
   Future<void> _checkConnectivity() async {

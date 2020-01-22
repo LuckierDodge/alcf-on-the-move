@@ -78,6 +78,22 @@ class MapVisState extends State<MapVis> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
+                      Text("Color: "),
+                      Container(
+                        padding: EdgeInsets.all(0),
+                        margin: EdgeInsets.all(0),
+                        child: Card(
+                          color: parseColor(color),
+                          margin: EdgeInsets.all(0),
+                        ),
+                        width: 100,
+                        height: 20,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
                       Text("Queue: "),
                       Text(
                         runningJob.queue.toString(),
@@ -105,19 +121,19 @@ class MapVisState extends State<MapVis> {
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text("Location: "),
-                      Flexible(
-                        flex: 1,
-                        child: Text(
-                          runningJob.location.toString(),
-                          softWrap: true,
-                        ),
-                      ),
-                    ],
-                  ),
+//                  Row(
+//                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                    children: <Widget>[
+//                      Text("Location: "),
+//                      Flexible(
+//                        flex: 1,
+//                        child: Text(
+//                          runningJob.location.toString(),
+//                          softWrap: true,
+//                        ),
+//                      ),
+//                    ],
+//                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
@@ -277,7 +293,7 @@ class MapVisState extends State<MapVis> {
       });
       widgetList.add(Row(
         children: barList,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       ));
     }
     widgetList.add(Divider());
