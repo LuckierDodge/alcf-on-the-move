@@ -8,7 +8,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="alcf_on_the_move"
+        android:label="ALCF On the Move"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

@@ -1,4 +1,5 @@
 import 'package:connectivity/connectivity.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'newspage.dart';
@@ -47,7 +48,15 @@ class _DashboardState extends State<Dashboard> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Row(
+          children: [
+            Image(
+              image: AssetImage('assets/icon/logo_anl.png'),
+            ),
+            Text(title)
+          ],
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        ),
         actions: <Widget>[
           // Refresh Button
           new IconButton(
@@ -107,36 +116,27 @@ class _DashboardState extends State<Dashboard> {
     return newStatuses;
   }
 
-  stepOne() {
+  ///
+  /// Helper functions for refreshing and checking connectivity
+  ///
+  Future<void> _refreshStatus() async {
+    emptyMachineStatuses();
+    rebuildStatuses();
+  }
+
+  emptyMachineStatuses() {
     this.setState(() {
       machineStatuses = [];
     });
   }
 
-  Future<void> stepTwo() async {
+  Future<void> rebuildStatuses() async {
     var tempCon = await Connectivity().checkConnectivity();
     this.setState(() {
       connectivity = tempCon;
       updatedTime = getTime();
       machineStatuses = _getMachineStatuses();
     });
-  }
-
-  ///
-  /// Helper functions for refreshing and checking connectivity
-  ///
-  Future<void> _refreshStatus() async {
-//    var tempCon = await Connectivity().checkConnectivity();
-//    this.setState(() {
-//      machineStatuses = [];
-//    });
-//    this.setState(() {
-//      connectivity = tempCon;
-//      updatedTime = getTime();
-//      machineStatuses = _getMachineStatuses();
-//    });
-    stepOne();
-    stepTwo();
   }
 
   Future<void> _checkConnectivity() async {

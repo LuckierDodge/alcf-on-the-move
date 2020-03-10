@@ -74,32 +74,20 @@ class _NewsPageState extends State<NewsPage> {
         future: ALCFRSS().getFeed(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            var items = snapshot.data;
-            return ListView.builder(
-                padding: const EdgeInsets.all(10.0),
-                itemBuilder: (context, i) {
-                  if (items == null && i == 0) {
-                    return Card(
-                        // Probably a problem with the scraper, but the user doesn't need to know
-                        child: Center(child: Text("No Announcements!")));
-                  } else if (i < items.length) {
-                    // Display each announcement
-                    return _announcement(items[i]);
-                  } else if (i == items.length) {
-                    // Return the Last Updated time at the end
-                    return Card(
-                      child: Container(
-                          padding: EdgeInsets.all(10.0),
-                          child: Text("Last Updated: $updatedTime")),
-                    );
-                  } else {
-                    // Appease the linter
-                    return null;
-                  }
-                });
+            return announcmentList(snapshot.data);
           } else if (snapshot.hasError) {
             return Card(
               child: Center(
+                child: Text(
+                  "Error: ${snapshot.error}",
+                ),
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return Card(
+              child: Center(
+                heightFactor: 10,
+                widthFactor: 10,
                 child: Text(
                   "Error: ${snapshot.error}",
                 ),
@@ -115,6 +103,30 @@ class _NewsPageState extends State<NewsPage> {
         });
   }
 
+  ListView announcmentList(items) {
+    return ListView.builder(
+        padding: const EdgeInsets.all(10.0),
+        itemBuilder: (context, i) {
+          if (items == null && i == 0) {
+            return Card(
+                // Probably a problem with the scraper, but the user doesn't need to know
+                child: Center(child: Text("No Announcements!")));
+          } else if (i < items.length) {
+            // Display each announcement
+            return _announcement(items[i]);
+          } else if (i == items.length && i != 0) {
+            // Return the Last Updated time at the end
+            return Card(
+              child: Container(
+                  padding: EdgeInsets.all(10.0),
+                  child: Text("Last Updated: $updatedTime")),
+            );
+          }
+          // Appease the linter
+          return null;
+        });
+  }
+
   /// Displays an individual announcement on the page
   Card _announcement(CarouselItem item) {
     return Card(
@@ -127,7 +139,25 @@ class _NewsPageState extends State<NewsPage> {
                 padding: EdgeInsets.all(10.0),
                 child: Column(
                   children: [
-                    Image.network(item.imageURL),
+                    FutureBuilder(
+                        future: item.getImage(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return Image.network(snapshot.data);
+                          } else if (snapshot.hasError) {
+                            return Center(
+                              heightFactor: 10,
+                              widthFactor: 10,
+                              child: Text(
+                                "Error: ${snapshot.error}",
+                              ),
+                            );
+                          } else {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                        }),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 4.0),
                       child: Center(

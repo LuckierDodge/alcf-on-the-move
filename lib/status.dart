@@ -21,13 +21,7 @@ class Status extends StatefulWidget {
 
 class StatusState extends State<Status> with SingleTickerProviderStateMixin {
   final String name;
-  static var coresPerNode = {
-    "Mira": 16,
-    "Cetus": 16,
-    "Vesta": 16,
-    "Cooley": 12,
-    "Theta": 64
-  };
+  static var coresPerNode = {"Cooley": 12, "Theta": 64};
   Activity activity;
   int nodesUsed = 0;
   int nodesTotal = 0;
@@ -110,13 +104,22 @@ class StatusState extends State<Status> with SingleTickerProviderStateMixin {
                 ),
               );
             }
-            _calculateNodesUsed();
-            coreHoursScheduled = 0;
-            activity.queuedJobs.forEach((job) => {
-                  coreHoursScheduled +=
-                      job.walltime / 60 / 60 * job.nodes * coresPerNode[name]
-                });
-            return _statusWidget();
+            try {
+              _calculateNodesUsed();
+              coreHoursScheduled = 0;
+              activity.queuedJobs.forEach((job) => {
+                    coreHoursScheduled +=
+                        job.walltime / 60 / 60 * job.nodes * coresPerNode[name]
+                  });
+              return _statusWidget();
+            } catch (exception) {
+              return Card(
+                  child: Center(
+                      widthFactor: 10,
+                      heightFactor: 10,
+                      child: Text(
+                          "Something went wrong displaying the status of $name.")));
+            }
           } else if (snapshot.hasError) {
             return Card(
               child: Center(

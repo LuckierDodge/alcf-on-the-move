@@ -11,12 +11,27 @@ import 'package:webfeed/webfeed.dart';
 /// widget defined in newspage.dart
 
 class CarouselItem {
-  String imageURL;
   String title;
   String text;
   String link;
 
-  CarouselItem(this.imageURL, this.title, this.text, this.link);
+  CarouselItem(this.title, this.text, this.link);
+
+  Future<String> getImage() async {
+    var client = http.Client();
+    http.Response response = await client.get(this.link);
+    var imageURL;
+    if (response.statusCode == 200) {
+      var doc = parse(response.body);
+      Element firstImage = doc.querySelectorAll('img')[3];
+      imageURL = firstImage.attributes['src'].toString();
+    } else {
+      // Fail softly if there's a problem
+      throw Exception(
+          "Error when fetching data from https://www.alcf.anl.gov/");
+    }
+    return 'https://www.alcf.anl.gov' + imageURL;
+  }
 }
 
 class ALCFRSS {
@@ -28,20 +43,7 @@ class ALCFRSS {
         .then((xmlString) => RssFeed.parse(xmlString));
     List<CarouselItem> carouselList = new List();
     rssFeed.items.forEach((item) async {
-      var client = http.Client();
-      http.Response response = await client.get(item.link);
-      var imageURL;
-      if (response.statusCode == 200) {
-        var doc = parse(response.body);
-        Element firstImage = doc.querySelectorAll('img')[3];
-        imageURL = firstImage.attributes['src'].toString();
-      } else {
-        // Fail softly if there's a problem
-        throw Exception(
-            "Error when fetching data from https://www.alcf.anl.gov/");
-      }
-      carouselList.add(CarouselItem('https://www.alcf.anl.gov' + imageURL,
-          item.title, item.description, item.link));
+      carouselList.add(CarouselItem(item.title, item.description, item.link));
     });
     return carouselList;
   }
