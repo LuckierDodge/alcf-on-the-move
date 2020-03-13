@@ -63,6 +63,12 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+
+  fonts:
+    - family:  NewsFeed
+      fonts:
+       - asset: fonts/NewsFeed.ttf
+
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/icon/logo_anl.png

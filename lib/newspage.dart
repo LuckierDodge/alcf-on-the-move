@@ -1,10 +1,12 @@
 import 'package:connectivity/connectivity.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'alcf_rss.dart';
 import 'settings.dart';
 import 'utils.dart';
+import 'news_feed_icons.dart';
 
 /// News Page
 ///
@@ -107,14 +109,99 @@ class _NewsPageState extends State<NewsPage> {
     return ListView.builder(
         padding: const EdgeInsets.all(10.0),
         itemBuilder: (context, i) {
-          if (items == null && i == 0) {
+          if (i == 0) {
+            return Card(
+              child: Container(
+                padding: EdgeInsets.all(10.0),
+                child: Column(
+                  children: <Widget>[
+                    Text("Get in Touch with ALCF:"),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Column(
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(NewsFeedIcons.facebook),
+                              onPressed: () {
+                                _openLink(
+                                    'https://www.facebook.com/pages/Argonne-Leadership-Computing-Facility/33428102469');
+                              },
+                            ),
+                            Text("Facebook"),
+                          ],
+                        ),
+                        Column(
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(NewsFeedIcons.twitter),
+                              onPressed: () {
+                                _openLink('https://twitter.com/argonne_lcf');
+                              },
+                            ),
+                            Text("Twitter"),
+                          ],
+                        ),
+                        Column(
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(NewsFeedIcons.linkedin),
+                              onPressed: () {
+                                _openLink(
+                                    'https://www.linkedin.com/company/argonne-leadership-computing-facility/');
+                              },
+                            ),
+                            Text("LinkedIn"),
+                          ],
+                        ),
+                        Column(
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(NewsFeedIcons.youtube_play),
+                              onPressed: () {
+                                _openLink(
+                                    'https://www.youtube.com/channel/UCFJAl2p722-FJ-ojxxYyrrw');
+                              },
+                            ),
+                            Text("YouTube"),
+                          ],
+                        ),
+                        Column(
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(Icons.help),
+                              onPressed: () {
+                                _openLink('mailto:helpdesk@cels.anl.gov');
+                              },
+                            ),
+                            Text("Helpdesk"),
+                          ],
+                        ),
+                        Column(
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(Icons.open_in_browser),
+                              onPressed: () {
+                                _openLink('https://www.alcf.anl.gov');
+                              },
+                            ),
+                            Text("On the Web"),
+                          ],
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            );
+          } else if (items == null && i == 1) {
             return Card(
                 // Probably a problem with the scraper, but the user doesn't need to know
                 child: Center(child: Text("No Announcements!")));
-          } else if (i < items.length) {
+          } else if (i > 0 && i <= items.length) {
             // Display each announcement
-            return _announcement(items[i]);
-          } else if (i == items.length && i != 0) {
+            return _announcement(items[i - 1]);
+          } else if (i == items.length + 1 && i != 0) {
             // Return the Last Updated time at the end
             return Card(
               child: Container(

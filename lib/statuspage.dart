@@ -1,40 +1,67 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
 
 import 'activity.dart';
-import 'statuspage.dart';
+import 'joblist.dart';
+import 'mapvisualization.dart';
+import 'utils.dart';
+import 'settings.dart';
 
 /// Status
 ///
 /// Returns an expandable widget which displays the status of a given machine,
 /// using activity data generated via the Activity json deserializer class
 
-class Status extends StatefulWidget {
-  Status(this.name, {Key key}) : super(key: key);
+class StatusPage extends StatefulWidget {
+  StatusPage(this.name, {Key key}) : super(key: key);
   final String name;
   @override
-  StatusState createState() => StatusState(name);
+  StatusPageState createState() => StatusPageState(name);
 }
 
-class StatusState extends State<Status> {
+class StatusPageState extends State<StatusPage>
+    with SingleTickerProviderStateMixin {
   final String name;
   static var coresPerNode = {"Cooley": 12, "Theta": 64};
   Activity activity;
   int nodesUsed = 0;
   int nodesTotal = 0;
+  TabController controller;
   int tabIndex = 0;
+  String updatedTime;
+  ConnectivityResult connectivity = ConnectivityResult.none;
   // Key used to update the Circular Charts
   final GlobalKey<AnimatedCircularChartState> _chartKey =
       new GlobalKey<AnimatedCircularChartState>();
   num coreHoursScheduled = 0;
 
-  StatusState(this.name);
+  StatusPageState(this.name);
+
+  @override
+  void initState() {
+    super.initState();
+    _checkConnectivity();
+    controller = TabController(length: 2, vsync: this, initialIndex: 0);
+    controller.addListener(() => {
+          if (controller.indexIsChanging)
+            setState(() {
+              tabIndex = controller.index;
+            })
+        });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   /// Grabs the latest activity data from status.alcf.anl.gov
   Future<void> updateStatus() async {
     try {
-//      Activity newActivity = await fetchActivity(name);
-      Activity newActivity = await fetchActivityDummy(name);
+      Activity newActivity = await fetchActivity(name);
+//      Activity newActivity = await fetchActivityDummy(name);
       var coreHours = 0.0;
       newActivity.queuedJobs.forEach((job) => {
             coreHours += job.walltime / 60 / 60 * job.nodes * coresPerNode[name]
@@ -54,6 +81,40 @@ class StatusState extends State<Status> {
   /// Builds the widget
   @override
   Widget build(BuildContext context) {
+    Widget activeWidget;
+    // Check to make sure the device is connected to the internet
+    if (connectivity == ConnectivityResult.none) {
+      activeWidget = NoConnection();
+    } else {
+      activeWidget = _futureStatus();
+    }
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(name),
+        actions: <Widget>[
+          // Refresh Button
+          new IconButton(
+              icon: const Icon(Icons.refresh), onPressed: _refreshStatus),
+          // Settings Button
+          new IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => Settings()));
+              }),
+        ],
+      ),
+      body: RefreshIndicator(
+        child: Container(
+          child: activeWidget,
+          padding: const EdgeInsets.all(10.0),
+        ),
+        onRefresh: _refreshStatus,
+      ),
+    );
+  }
+
+  Widget _futureStatus() {
     return FutureBuilder<Activity>(
         future: fetchActivity(name),
 //        future: fetchActivityDummy(name),
@@ -112,12 +173,29 @@ class StatusState extends State<Status> {
   /// Expandable Status widget
   Widget _statusWidget() {
     return Card(
-        child: InkWell(
-            child: _statusCardHeader(),
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => StatusPage(name)));
-            }));
+      child: Column(
+        children: <Widget>[
+          _statusCardHeader(),
+          Divider(),
+          Container(
+            height: 40,
+            child: TabBar(
+              tabs: [
+                Icon(Icons.grid_on),
+                Icon(Icons.list),
+              ],
+              controller: controller,
+            ),
+          ),
+          Expanded(
+            child: [
+              MapVis(name, activity),
+              JobList(activity),
+            ][tabIndex],
+          )
+        ],
+      ),
+    );
   }
 
   /// Creates a Circular chart and Summary statistics
@@ -237,5 +315,35 @@ class StatusState extends State<Status> {
         rankKey: 'Resource Usage',
       ),
     ];
+  }
+
+  ///
+  /// Helper functions for refreshing and checking connectivity
+  ///
+  Future<void> _refreshStatus() async {
+    emptyMachineStatus();
+    rebuildStatus();
+  }
+
+  emptyMachineStatus() {
+    this.setState(() {
+      activity = null;
+    });
+  }
+
+  Future<void> rebuildStatus() async {
+    var tempCon = await Connectivity().checkConnectivity();
+    updateStatus();
+    this.setState(() {
+      connectivity = tempCon;
+      updatedTime = getTime();
+    });
+  }
+
+  Future<void> _checkConnectivity() async {
+    var tempCon = await Connectivity().checkConnectivity();
+    setState(() {
+      connectivity = tempCon;
+    });
   }
 }

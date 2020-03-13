@@ -48,15 +48,7 @@ class _DashboardState extends State<Dashboard> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            Image(
-              image: AssetImage('assets/icon/logo_anl.png'),
-            ),
-            Text(title)
-          ],
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        ),
+        title: Text(title),
         actions: <Widget>[
           // Refresh Button
           new IconButton(
