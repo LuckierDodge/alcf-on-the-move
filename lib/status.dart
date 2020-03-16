@@ -156,19 +156,27 @@ class StatusState extends State<Status> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Running Jobs:",
+                          "Jobs",
                           textScaleFactor: 1.1,
                         ),
                         Text(
-                          "Queued Jobs:",
+                          "Queued",
                           textScaleFactor: 1.1,
                         ),
                         Text(
-                          "Core Hours Scheduled:",
+                          "Reserved",
                           textScaleFactor: 1.1,
                         ),
                         Text(
-                          "Reservations:",
+                          "Nodes",
+                          textScaleFactor: 1.1,
+                        ),
+//                        Text(
+//                          "Usage",
+//                          textScaleFactor: 1.1,
+//                        ),
+                        Text(
+                          "Core Hours",
                           textScaleFactor: 1.1,
                         ),
                       ]),
@@ -182,11 +190,19 @@ class StatusState extends State<Status> {
                       textScaleFactor: 1.1,
                     ),
                     Text(
-                      "${coreHoursScheduled.round().toString()}",
+                      "${activity.reservations.length}",
                       textScaleFactor: 1.1,
                     ),
                     Text(
-                      "${activity.reservations.length}",
+                      "${nodesUsed}",
+                      textScaleFactor: 1.1,
+                    ),
+//                    Text(
+//                      "${(nodesUsed / nodesTotal * 100).round()}%",
+//                      textScaleFactor: 1.1,
+//                    ),
+                    Text(
+                      "${coreHoursScheduled.round().toString()}",
                       textScaleFactor: 1.1,
                     ),
                   ])
