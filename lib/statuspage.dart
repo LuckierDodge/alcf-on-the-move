@@ -172,30 +172,57 @@ class StatusPageState extends State<StatusPage>
 
   /// Expandable Status widget
   Widget _statusWidget() {
-    return Card(
-      child: Column(
-        children: <Widget>[
-          _statusCardHeader(),
-          Divider(),
-          Container(
-            height: 40,
-            child: TabBar(
-              tabs: [
-                Icon(Icons.grid_on),
-                Icon(Icons.list),
-              ],
-              controller: controller,
+    return ListView(
+      children: <Widget>[
+        Card(child: _statusCardHeader()),
+        Card(
+            child: Column(
+          children: [
+            Container(
+              height: 40,
+              child: TabBar(
+                tabs: [
+                  Icon(Icons.grid_on),
+                  Icon(Icons.list),
+                ],
+                controller: controller,
+              ),
             ),
-          ),
-          Expanded(
-            child: [
+//            Expanded(
+//              child: [
+            [
               MapVis(name, activity),
               JobList(activity),
             ][tabIndex],
-          )
-        ],
-      ),
+//            )
+          ],
+        )),
+      ],
     );
+//    return Card(
+//      child: Column(
+//        children: <Widget>[
+//          _statusCardHeader(),
+//          Divider(),
+//          Container(
+//            height: 40,
+//            child: TabBar(
+//              tabs: [
+//                Icon(Icons.grid_on),
+//                Icon(Icons.list),
+//              ],
+//              controller: controller,
+//            ),
+//          ),
+//          Expanded(
+//            child: [
+//              MapVis(name, activity),
+//              JobList(activity),
+//            ][tabIndex],
+//          )
+//        ],
+//      ),
+//    );
   }
 
   /// Creates a Circular chart and Summary statistics

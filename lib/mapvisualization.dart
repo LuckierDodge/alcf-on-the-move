@@ -121,19 +121,6 @@ class MapVisState extends State<MapVis> {
                       ),
                     ],
                   ),
-//                  Row(
-//                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                    children: <Widget>[
-//                      Text("Location: "),
-//                      Flexible(
-//                        flex: 1,
-//                        child: Text(
-//                          runningJob.location.toString(),
-//                          softWrap: true,
-//                        ),
-//                      ),
-//                    ],
-//                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
@@ -239,6 +226,7 @@ class MapVisState extends State<MapVis> {
     });
 
     return ListView(
+      physics: NeverScrollableScrollPhysics(),
       children: widgetList,
       shrinkWrap: true,
     );
@@ -406,6 +394,7 @@ class MapVisState extends State<MapVis> {
     }
 
     return ListView(
+      physics: NeverScrollableScrollPhysics(),
       children: widgetList,
       shrinkWrap: true,
     );
@@ -540,6 +529,7 @@ class MapVisState extends State<MapVis> {
       )));
     }
     return ListView(
+      physics: NeverScrollableScrollPhysics(),
       children: widgetList,
       shrinkWrap: true,
     );

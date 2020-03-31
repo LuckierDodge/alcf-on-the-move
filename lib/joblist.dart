@@ -1,5 +1,5 @@
-import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import 'activity.dart';
 import 'utils.dart';
@@ -22,308 +22,189 @@ class JobListState extends State<JobList> {
   /// Builds the widget
   @override
   Widget build(BuildContext context) {
-    var runningJobs = activity.runningJobs.length;
-    var queuedJobs = activity.queuedJobs.length;
-    var reservations = activity.reservations.length;
-    return ListView.builder(
-        padding: const EdgeInsets.all(10.0),
-        shrinkWrap: true,
-        itemBuilder: (context, i) {
-          if (i == 0) {
-            return _listCard("$runningJobs Running Jobs", _runningJobs());
-          } else if (i == 1) {
-            return _listCard("$queuedJobs Queued Jobs", _queuedJobs());
-          } else if (i == 2) {
-            return _listCard("$reservations Reservations", _reservations());
-          } else {
-            return null;
-          }
-        });
+    var runningJobs = _runningJobs();
+    var queuedJobs = _queuedJobs();
+    var reservations = _reservations();
+    return ListView(
+      physics: NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      padding: const EdgeInsets.all(10.0),
+      children: <Widget>[
+        jobTable(
+            "Running Jobs",
+            [
+              "Job ID",
+              "Project",
+              "Run Time",
+              "Wall Time",
+              "Nodes Used",
+              "Mode",
+              "Location",
+            ],
+            runningJobs[0],
+            runningJobs[1]),
+        Divider(),
+        jobTable(
+            "Queued Jobs",
+            [
+              "Job ID",
+              "Project",
+              "Queue",
+              "Queued Time",
+              "Wall Time",
+              "Score",
+              "Nodes Requested",
+              "Mode",
+            ],
+            queuedJobs[0],
+            queuedJobs[1]),
+        Divider(),
+        jobTable(
+            "Reservations",
+            [
+              "Name",
+              "Start Time",
+              "Queue",
+              "T-Minus",
+            ],
+            reservations[0],
+            reservations[1]),
+      ],
+    );
   }
 
-  _listCard(String title, Widget subWidget) {
-    return Card(
-      elevation: 10,
-      borderOnForeground: true,
-      child: Container(
-        padding: EdgeInsets.all(2.0),
-        child: ExpandableNotifier(
-          child: Container(
-            padding: EdgeInsets.all(2.0),
-            child: ExpandablePanel(
-              hasIcon: false,
-              headerAlignment: ExpandablePanelHeaderAlignment.center,
-              header: Container(
-                padding: EdgeInsets.all(12.0),
-                alignment: Alignment.center,
-                child: Text(
-                  title,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.left,
-                ),
-              ),
-              expanded: subWidget,
-            ),
+  Widget jobTable(title, columnList, ids, jobTable) {
+    var columnWidthMap = Map<int, TableColumnWidth>();
+    columnWidthMap[0] = IntrinsicColumnWidth();
+    return Column(
+      children: [
+        Text(
+          title,
+          textScaleFactor: 1.5,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Table(
+//          border: null,
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          children: _tableChildren(columnList, ids, jobTable),
+          columnWidths: columnWidthMap,
+        )
+      ],
+      crossAxisAlignment: CrossAxisAlignment.start,
+    );
+  }
+
+  List<TableRow> _tableChildren(columnList, ids, jobTable) {
+    List<Widget> idColumn = [];
+    List<TableRow> otherColumn = [];
+    idColumn.add(
+      Container(
+          child: Text(columnList[0],
+              style: TextStyle(fontWeight: FontWeight.bold)),
+          padding: EdgeInsets.all(4)),
+    );
+    otherColumn.add(TableRow(
+      children: columnHeader(columnList),
+    ));
+    ids.forEach((id) => {idColumn.add(id)});
+    jobTable.forEach((job) => {otherColumn.add(job)});
+    return [
+      TableRow(children: [
+        Column(
+          children: idColumn,
+          crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Table(
+            children: otherColumn,
+//            border: null,
+            defaultColumnWidth: IntrinsicColumnWidth(),
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           ),
         ),
-      ),
+      ])
+    ];
+  }
+
+  List<Widget> columnHeader(columnList) {
+    List<Widget> widgetList = [];
+    columnList.forEach((column) => {
+          if (column != columnList[0])
+            {
+              widgetList.add(
+                Container(
+                    child: Text(column,
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    padding: EdgeInsets.all(4)),
+              )
+            }
+        });
+    return widgetList;
+  }
+
+  textCell(text) {
+    return Container(
+      child: Text(text),
+      padding: EdgeInsets.all(4),
     );
   }
 
   /// Displays all the running jobs
-  Widget _runningJobs() {
-    List<Widget> widgetList = [];
+  List _runningJobs() {
+    List<Widget> idColumn = [];
+    List<TableRow> jobTable = [];
     activity.runningJobs.forEach((job) {
-      widgetList.add(Divider());
-      widgetList.add(ExpandableNotifier(
-          child: ExpandablePanel(
-        header: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Container(
-              padding: EdgeInsets.all(5.0),
-              child: Card(
-                  child: Text(job.jobid.toString()),
-                  color: parseColor(job.color))),
-        ]),
-        collapsed: Container(
-            padding: EdgeInsets.all(5.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text("Project: "),
-                Text(job.project.toString()),
-              ],
-            )),
-        expanded: Column(
-          children: <Widget>[
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Project: "),
-                    Text(job.project.toString()),
-                  ],
-                )),
-            Container(
-              padding: EdgeInsets.all(5.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[Text("Queue: "), Text(job.queue.toString())],
-              ),
-            ),
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Run Time: "),
-                    Text(job.runtimef.toString())
-                  ],
-                )),
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Wall Time: "),
-                    Text(job.walltimef.toString())
-                  ],
-                )),
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Location: "),
-                    Text(job.location.toString())
-                  ],
-                )),
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Nodes Used: "),
-                    Text(job.nodes.toString())
-                  ],
-                )),
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[Text("Mode: "), Text(job.mode.toString())],
-                )),
-          ],
-        ),
-      )));
+      idColumn.add(textCell(job.jobid.toString()));
+      jobTable.add(TableRow(
+        children: [
+          textCell(job.project.toString()),
+          textCell(job.runtimef.toString()),
+          textCell(job.walltimef.toString()),
+          textCell(job.nodes.toString()),
+          textCell(job.mode.toString()),
+          textCell(job.location.toString()),
+        ],
+      ));
     });
-    return Container(
-      padding: EdgeInsets.all(10.0),
-      child: Column(
-        children: widgetList,
-      ),
-    );
+    return [idColumn, jobTable];
   }
 
   /// Displays all the queued jobs
-  _queuedJobs() {
-    List<Widget> widgetList = [];
+  List _queuedJobs() {
+    List<Widget> idColumn = [];
+    List<TableRow> jobTable = [];
     activity.queuedJobs.forEach((job) {
-      widgetList.add(Divider());
-      widgetList.add(ExpandableNotifier(
-          child: ExpandablePanel(
-        header: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Container(
-              padding: EdgeInsets.all(5.0),
-              child: Card(
-                child: Text(
-                  job.jobid.toString(),
-                ),
-              )),
-        ]),
-        collapsed: Container(
-            padding: EdgeInsets.all(5.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text("Project: "),
-                Text(job.project.toString())
-              ],
-            )),
-        expanded: Column(
-          children: <Widget>[
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Project: "),
-                    Text(job.project.toString())
-                  ],
-                )),
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Queue: "),
-                    Text(job.queue.toString())
-                  ],
-                )),
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Queued Time: "),
-                    Text(job.queuedtimef.toString())
-                  ],
-                )),
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Wall Time: "),
-                    Text(job.walltimef.toString())
-                  ],
-                )),
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Score: "),
-                    Text(job.score.toString())
-                  ],
-                )),
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Nodes Requested: "),
-                    Text(job.nodes.toString())
-                  ],
-                )),
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[Text("Mode: "), Text(job.mode.toString())],
-                )),
-          ],
-        ),
-      )));
+      idColumn.add(textCell(job.jobid.toString()));
+      jobTable.add(TableRow(
+        children: [
+          textCell(job.project.toString()),
+          textCell(job.queue.toString()),
+          textCell(job.queuedtimef.toString()),
+          textCell(job.walltimef.toString()),
+          textCell(job.score.toString()),
+          textCell(job.nodes.toString()),
+          textCell(job.mode.toString()),
+        ],
+      ));
     });
-    return Column(
-      children: widgetList,
-    );
+    return [idColumn, jobTable];
   }
 
   /// Displays all the reservations jobs
-  _reservations() {
-    List<Widget> widgetList = [];
-    activity.reservations.forEach((job) {
-      widgetList.add(Divider());
-      widgetList.add(ExpandableNotifier(
-          child: ExpandablePanel(
-        header: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Container(
-              padding: EdgeInsets.all(5.0),
-              child: Card(
-                child: Text(
-                  job.name.toString(),
-                ),
-              )),
-        ]),
-        collapsed: Container(
-            padding: EdgeInsets.all(5.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[Text("Start: "), Text(job.startf.toString())],
-            )),
-        expanded: Column(
-          children: <Widget>[
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Start: "),
-                    Text(job.startf.toString())
-                  ],
-                )),
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Queue: "),
-                    Text(job.queue.toString())
-                  ],
-                )),
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Duration: "),
-                    Text(job.durationf.toString())
-                  ],
-                )),
-            Container(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[Text("T-: "), Text(job.tminus.toString())],
-                )),
-          ],
-        ),
-      )));
+  List _reservations() {
+    List<Widget> nameColumn = [];
+    List<TableRow> jobTable = [];
+    activity.reservations.forEach((reservation) {
+      nameColumn.add(textCell(reservation.name.toString()));
+      jobTable.add(TableRow(
+        children: [
+          textCell(reservation.startf.toString()),
+          textCell(reservation.queue.toString()),
+          textCell(reservation.tminus.toString()),
+        ],
+      ));
     });
-    return Column(
-      children: widgetList,
-    );
+    return [nameColumn, jobTable];
   }
 }

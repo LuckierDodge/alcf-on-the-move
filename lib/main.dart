@@ -20,7 +20,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return new SplashScreen(
-      seconds: 5,
+      seconds: 2,
       navigateAfterSeconds: Dashboard(title: 'ALCF On the Move'),
       title: new Text("ALCF On the Move",
           style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0)),
