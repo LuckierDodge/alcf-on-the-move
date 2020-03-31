@@ -120,6 +120,15 @@ class StatusState extends State<Status> {
             }));
   }
 
+  Size circularChartSize(context) {
+    if (MediaQuery.of(context).size.width > 1000) {
+      return Size(300, 300);
+    } else {
+      return Size(MediaQuery.of(context).size.width / 3,
+          MediaQuery.of(context).size.width / 3);
+    }
+  }
+
   /// Creates a Circular chart and Summary statistics
   _statusCardHeader() {
     return Row(
@@ -127,8 +136,7 @@ class StatusState extends State<Status> {
         // Circular Chart of Percentage Used
         AnimatedCircularChart(
           key: _chartKey,
-          size: Size(MediaQuery.of(context).size.width / 3,
-              MediaQuery.of(context).size.width / 3),
+          size: circularChartSize(context),
           initialChartData: _updateUsageData(),
           holeLabel: "${(nodesUsed / nodesTotal * 100).round()}%",
           chartType: CircularChartType.Radial,
@@ -138,7 +146,10 @@ class StatusState extends State<Status> {
           ),
         ),
         Container(
-          width: MediaQuery.of(context).size.width / 1.8,
+//          width: MediaQuery.of(context).size.width / 1.8,
+          width: MediaQuery.of(context).size.width -
+              circularChartSize(context).width -
+              70,
           child: Column(
             children: [
               Text(

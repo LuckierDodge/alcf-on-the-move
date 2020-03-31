@@ -9,13 +9,14 @@ import 'utils.dart';
 /// Lists all of the running, queued, and reserved jobs for a machine
 class JobList extends StatefulWidget {
   JobList(this.activity, {Key key}) : super(key: key);
-  final Activity activity;
+  Activity activity;
   @override
   JobListState createState() => JobListState(activity);
 }
 
 class JobListState extends State<JobList> {
-  final Activity activity;
+  Activity activity;
+  Activity filteredActivity;
 
   JobListState(this.activity);
 
@@ -78,13 +79,14 @@ class JobListState extends State<JobList> {
     columnWidthMap[0] = IntrinsicColumnWidth();
     return Column(
       children: [
-        Text(
-          title,
-          textScaleFactor: 1.5,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        Container(
+            child: Text(
+              title,
+              textScaleFactor: 1.5,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            padding: EdgeInsets.fromLTRB(5, 10, 5, 10)),
         Table(
-//          border: null,
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           children: _tableChildren(columnList, ids, jobTable),
           columnWidths: columnWidthMap,
@@ -95,13 +97,14 @@ class JobListState extends State<JobList> {
   }
 
   List<TableRow> _tableChildren(columnList, ids, jobTable) {
-    List<Widget> idColumn = [];
+    List<TableRow> idColumn = [];
     List<TableRow> otherColumn = [];
     idColumn.add(
-      Container(
-          child: Text(columnList[0],
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          padding: EdgeInsets.all(4)),
+      TableRow(children: [
+        headerCell("Notify"),
+//        headerCell("Color"),
+        headerCell(columnList[0]),
+      ]),
     );
     otherColumn.add(TableRow(
       children: columnHeader(columnList),
@@ -110,17 +113,25 @@ class JobListState extends State<JobList> {
     jobTable.forEach((job) => {otherColumn.add(job)});
     return [
       TableRow(children: [
-        Column(
+        Table(
           children: idColumn,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          defaultColumnWidth: IntrinsicColumnWidth(),
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          border: TableBorder.all(color: Colors.grey),
         ),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Table(
             children: otherColumn,
-//            border: null,
             defaultColumnWidth: IntrinsicColumnWidth(),
             defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            border: TableBorder(
+              verticalInside: BorderSide(color: Colors.grey),
+              horizontalInside: BorderSide(color: Colors.grey),
+              right: BorderSide(color: Colors.grey),
+              top: BorderSide(color: Colors.grey),
+              bottom: BorderSide(color: Colors.grey),
+            ),
           ),
         ),
       ])
@@ -133,10 +144,7 @@ class JobListState extends State<JobList> {
           if (column != columnList[0])
             {
               widgetList.add(
-                Container(
-                    child: Text(column,
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    padding: EdgeInsets.all(4)),
+                headerCell(column),
               )
             }
         });
@@ -146,16 +154,37 @@ class JobListState extends State<JobList> {
   textCell(text) {
     return Container(
       child: Text(text),
-      padding: EdgeInsets.all(4),
+      padding: EdgeInsets.fromLTRB(5, 20, 5, 20),
+    );
+  }
+
+  textCellColored(text, color) {
+    return Container(
+      child: Text(text, style: TextStyle(backgroundColor: parseColor(color))),
+      padding: EdgeInsets.fromLTRB(5, 20, 5, 20),
+    );
+  }
+
+  headerCell(text) {
+    return Container(
+      child: Text(text, style: TextStyle(fontWeight: FontWeight.bold)),
+      padding: EdgeInsets.fromLTRB(5, 20, 5, 20),
     );
   }
 
   /// Displays all the running jobs
   List _runningJobs() {
-    List<Widget> idColumn = [];
+    List<TableRow> idColumn = [];
     List<TableRow> jobTable = [];
     activity.runningJobs.forEach((job) {
-      idColumn.add(textCell(job.jobid.toString()));
+      idColumn.add(TableRow(children: [
+        IconButton(
+          icon: Icon(Icons.notifications_none),
+          onPressed: () => {},
+//          color: parseColor(job.color),
+        ),
+        textCellColored(job.jobid.toString(), job.color),
+      ]));
       jobTable.add(TableRow(
         children: [
           textCell(job.project.toString()),
@@ -172,10 +201,16 @@ class JobListState extends State<JobList> {
 
   /// Displays all the queued jobs
   List _queuedJobs() {
-    List<Widget> idColumn = [];
+    List<TableRow> idColumn = [];
     List<TableRow> jobTable = [];
     activity.queuedJobs.forEach((job) {
-      idColumn.add(textCell(job.jobid.toString()));
+      idColumn.add(TableRow(children: [
+        IconButton(
+          icon: Icon(Icons.notifications_none),
+          onPressed: () => {},
+        ),
+        textCell(job.jobid.toString())
+      ]));
       jobTable.add(TableRow(
         children: [
           textCell(job.project.toString()),
@@ -193,10 +228,16 @@ class JobListState extends State<JobList> {
 
   /// Displays all the reservations jobs
   List _reservations() {
-    List<Widget> nameColumn = [];
+    List<TableRow> nameColumn = [];
     List<TableRow> jobTable = [];
     activity.reservations.forEach((reservation) {
-      nameColumn.add(textCell(reservation.name.toString()));
+      nameColumn.add(TableRow(children: [
+        IconButton(
+          icon: Icon(Icons.notifications_none),
+          onPressed: () => {},
+        ),
+        textCell(reservation.name.toString())
+      ]));
       jobTable.add(TableRow(
         children: [
           textCell(reservation.startf.toString()),

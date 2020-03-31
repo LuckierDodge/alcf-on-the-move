@@ -21,12 +21,16 @@ hyphen_range(String s) {
 
 /// Pulls a Color out of a #000000 style hex string
 parseColor(String c) {
-  return Color.fromARGB(
-    255,
-    int.parse(c.toString().substring(1, 3), radix: 16),
-    int.parse(c.toString().substring(3, 5), radix: 16),
-    int.parse(c.toString().substring(5, 7), radix: 16),
-  );
+  try {
+    return Color.fromARGB(
+      255,
+      int.parse(c.toString().substring(1, 3), radix: 16),
+      int.parse(c.toString().substring(3, 5), radix: 16),
+      int.parse(c.toString().substring(5, 7), radix: 16),
+    );
+  } catch (exception) {
+    return Color.fromARGB(255, 255, 255, 255);
+  }
 }
 
 /// Widget displayed when the device is disconnected from the internet

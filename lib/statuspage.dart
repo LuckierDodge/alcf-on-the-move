@@ -188,8 +188,6 @@ class StatusPageState extends State<StatusPage>
                 controller: controller,
               ),
             ),
-//            Expanded(
-//              child: [
             [
               MapVis(name, activity),
               JobList(activity),
@@ -199,30 +197,15 @@ class StatusPageState extends State<StatusPage>
         )),
       ],
     );
-//    return Card(
-//      child: Column(
-//        children: <Widget>[
-//          _statusCardHeader(),
-//          Divider(),
-//          Container(
-//            height: 40,
-//            child: TabBar(
-//              tabs: [
-//                Icon(Icons.grid_on),
-//                Icon(Icons.list),
-//              ],
-//              controller: controller,
-//            ),
-//          ),
-//          Expanded(
-//            child: [
-//              MapVis(name, activity),
-//              JobList(activity),
-//            ][tabIndex],
-//          )
-//        ],
-//      ),
-//    );
+  }
+
+  Size circularChartSize(context) {
+    if (MediaQuery.of(context).size.width > 1000) {
+      return Size(300, 300);
+    } else {
+      return Size(MediaQuery.of(context).size.width / 3,
+          MediaQuery.of(context).size.width / 3);
+    }
   }
 
   /// Creates a Circular chart and Summary statistics
@@ -232,8 +215,7 @@ class StatusPageState extends State<StatusPage>
         // Circular Chart of Percentage Used
         AnimatedCircularChart(
           key: _chartKey,
-          size: Size(MediaQuery.of(context).size.width / 3,
-              MediaQuery.of(context).size.width / 3),
+          size: circularChartSize(context),
           initialChartData: _updateUsageData(),
           holeLabel: "${(nodesUsed / nodesTotal * 100).round()}%",
           chartType: CircularChartType.Radial,
@@ -243,7 +225,9 @@ class StatusPageState extends State<StatusPage>
           ),
         ),
         Container(
-          width: MediaQuery.of(context).size.width / 1.8,
+          width: MediaQuery.of(context).size.width -
+              circularChartSize(context).width -
+              70,
           child: Column(
             children: [
               Text(
