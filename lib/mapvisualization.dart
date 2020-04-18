@@ -14,7 +14,7 @@ import 'utils.dart';
 class MapVis extends StatefulWidget {
   MapVis(this.name, this.activity, {Key key}) : super(key: key);
   final String name;
-  Activity activity;
+  final Activity activity;
   @override
   MapVisState createState() => MapVisState(name, activity);
 }

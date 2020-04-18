@@ -217,20 +217,24 @@ class _NewsPageState extends State<NewsPage> {
   /// Displays an individual announcement on the page
   Card _announcement(CarouselItem item) {
     return Card(
-        child: FlatButton(
-            onPressed: () {
+        child: InkWell(
+            onTap: () {
               // Open a link when clicked
               _openLink(item.link);
             },
             child: Container(
                 padding: EdgeInsets.all(10.0),
-                child: Column(
+                child: Row(
                   children: [
                     FutureBuilder(
                         future: item.getImage(),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
-                            return Image.network(snapshot.data);
+                            return Image.network(
+                              snapshot.data,
+                              width: MediaQuery.of(context).size.width / 2 - 30,
+                              fit: BoxFit.fitWidth,
+                            );
                           } else if (snapshot.hasError) {
                             return Center(
                               heightFactor: 10,
@@ -240,31 +244,43 @@ class _NewsPageState extends State<NewsPage> {
                               ),
                             );
                           } else {
-                            return Center(
-                              child: CircularProgressIndicator(),
-                            );
+                            return Container(
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                                width:
+                                    MediaQuery.of(context).size.width / 2 - 30);
                           }
                         }),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 4.0),
-                      child: Center(
-                          child: Text(
-                        item.title.toString(),
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
-                      )),
-                    ),
-                    Divider(),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
-                      child: Center(
-                          child: Text(item.text.toString().replaceAll(
-                              RegExp(r"<[^>]*>",
-                                  multiLine: true, caseSensitive: true),
-                              ''))),
-                    )
+                    Container(
+                        child: Column(
+                          children: <Widget>[
+                            Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 4.0),
+                              child: Center(
+                                  child: Text(
+                                item.title.toString(),
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                              )),
+                            ),
+                            Divider(),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
+                              child: Center(
+                                  child: Text(item.text.toString().replaceAll(
+                                      RegExp(r"<[^>]*>",
+                                          multiLine: true, caseSensitive: true),
+                                      ''))),
+                            )
+                          ],
+                        ),
+                        width: MediaQuery.of(context).size.width / 2 - 30),
                   ],
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 ))));
   }
 

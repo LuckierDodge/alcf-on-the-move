@@ -9,16 +9,27 @@ import 'utils.dart';
 /// Lists all of the running, queued, and reserved jobs for a machine
 class JobList extends StatefulWidget {
   JobList(this.activity, {Key key}) : super(key: key);
-  Activity activity;
+  final Activity activity;
   @override
   JobListState createState() => JobListState(activity);
 }
 
 class JobListState extends State<JobList> {
   Activity activity;
-  Activity filteredActivity;
+  List<RunningJob> filteredRunningJobs;
+  List<QueuedJob> filteredQueuedJobs;
+  List<Reservation> filteredReservations;
+  TextEditingController _textController = TextEditingController();
 
   JobListState(this.activity);
+
+  @override
+  void initState() {
+    super.initState();
+    filteredRunningJobs = activity.runningJobs;
+    filteredQueuedJobs = activity.queuedJobs;
+    filteredReservations = activity.reservations;
+  }
 
   /// Builds the widget
   @override
@@ -31,6 +42,7 @@ class JobListState extends State<JobList> {
       shrinkWrap: true,
       padding: const EdgeInsets.all(10.0),
       children: <Widget>[
+        filterBar(),
         jobTable(
             "Running Jobs",
             [
@@ -55,6 +67,7 @@ class JobListState extends State<JobList> {
               "Wall Time",
               "Score",
               "Nodes Requested",
+              "State",
               "Mode",
             ],
             queuedJobs[0],
@@ -65,6 +78,7 @@ class JobListState extends State<JobList> {
             [
               "Name",
               "Start Time",
+              "Duration",
               "Queue",
               "T-Minus",
             ],
@@ -72,6 +86,100 @@ class JobListState extends State<JobList> {
             reservations[1]),
       ],
     );
+  }
+
+  Widget filterBar() {
+    return TextField(
+      controller: _textController,
+      decoration: InputDecoration(hintText: "Filter Jobs or Reservations"),
+      onChanged: _onChanged,
+    );
+  }
+
+  _onChanged(String value) {
+    if (value == "") {
+      setState(() {
+        filteredRunningJobs = activity.runningJobs;
+        filteredQueuedJobs = activity.queuedJobs;
+        filteredReservations = activity.reservations;
+      });
+    } else {
+      setState(() {
+        filteredRunningJobs = activity.runningJobs
+            .where((runningJob) =>
+                runningJob.jobid
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()) ||
+                runningJob.queue
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()) ||
+                runningJob.nodes
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()) ||
+                runningJob.mode
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()) ||
+                runningJob.location
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()) ||
+                runningJob.project
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()))
+            .toList();
+        filteredQueuedJobs = activity.queuedJobs
+            .where((queuedJob) =>
+                queuedJob.jobid
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()) ||
+                queuedJob.queue
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()) ||
+                queuedJob.mode
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()) ||
+                queuedJob.nodes
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()) ||
+                queuedJob.state
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()) ||
+                queuedJob.project
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()))
+            .toList();
+        filteredReservations = activity.reservations
+            .where((reservation) =>
+                reservation.name
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()) ||
+                reservation.startf
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()) ||
+                reservation.duration
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()) ||
+                reservation.queue
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase()))
+            .toList();
+      });
+    }
   }
 
   Widget jobTable(title, columnList, ids, jobTable) {
@@ -102,7 +210,6 @@ class JobListState extends State<JobList> {
     idColumn.add(
       TableRow(children: [
         headerCell("Notify"),
-//        headerCell("Color"),
         headerCell(columnList[0]),
       ]),
     );
@@ -176,7 +283,7 @@ class JobListState extends State<JobList> {
   List _runningJobs() {
     List<TableRow> idColumn = [];
     List<TableRow> jobTable = [];
-    activity.runningJobs.forEach((job) {
+    filteredRunningJobs.forEach((job) {
       idColumn.add(TableRow(children: [
         IconButton(
           icon: Icon(Icons.notifications_none),
@@ -203,7 +310,7 @@ class JobListState extends State<JobList> {
   List _queuedJobs() {
     List<TableRow> idColumn = [];
     List<TableRow> jobTable = [];
-    activity.queuedJobs.forEach((job) {
+    filteredQueuedJobs.forEach((job) {
       idColumn.add(TableRow(children: [
         IconButton(
           icon: Icon(Icons.notifications_none),
@@ -219,6 +326,7 @@ class JobListState extends State<JobList> {
           textCell(job.walltimef.toString()),
           textCell(job.score.toString()),
           textCell(job.nodes.toString()),
+          textCell(job.state.toString()),
           textCell(job.mode.toString()),
         ],
       ));
@@ -226,11 +334,11 @@ class JobListState extends State<JobList> {
     return [idColumn, jobTable];
   }
 
-  /// Displays all the reservations jobs
+  /// Displays all the reservations
   List _reservations() {
     List<TableRow> nameColumn = [];
     List<TableRow> jobTable = [];
-    activity.reservations.forEach((reservation) {
+    filteredReservations.forEach((reservation) {
       nameColumn.add(TableRow(children: [
         IconButton(
           icon: Icon(Icons.notifications_none),
@@ -241,6 +349,7 @@ class JobListState extends State<JobList> {
       jobTable.add(TableRow(
         children: [
           textCell(reservation.startf.toString()),
+          textCell(reservation.durationf.toString()),
           textCell(reservation.queue.toString()),
           textCell(reservation.tminus.toString()),
         ],

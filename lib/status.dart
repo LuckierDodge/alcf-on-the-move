@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'activity.dart';
 import 'statuspage.dart';
@@ -103,6 +106,7 @@ class StatusState extends State<Status> {
           return Card(
             child: Center(
               heightFactor: 2,
+              widthFactor: 2,
               child: CircularProgressIndicator(),
             ),
           );
@@ -120,109 +124,131 @@ class StatusState extends State<Status> {
             }));
   }
 
-  Size circularChartSize(context) {
-    if (MediaQuery.of(context).size.width > 1000) {
-      return Size(300, 300);
-    } else {
-      return Size(MediaQuery.of(context).size.width / 3,
-          MediaQuery.of(context).size.width / 3);
-    }
-  }
-
   /// Creates a Circular chart and Summary statistics
   _statusCardHeader() {
-    return Row(
-      children: [
-        // Circular Chart of Percentage Used
-        AnimatedCircularChart(
-          key: _chartKey,
-          size: circularChartSize(context),
-          initialChartData: _updateUsageData(),
-          holeLabel: "${(nodesUsed / nodesTotal * 100).round()}%",
-          chartType: CircularChartType.Radial,
-          labelStyle: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+    Map<int, TableColumnWidth> columnWidthMap = Map<int, TableColumnWidth>();
+    columnWidthMap[0] = IntrinsicColumnWidth();
+    columnWidthMap[1] = FlexColumnWidth();
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Circular Chart of Percentage Used
+          AnimatedCircularChart(
+            key: _chartKey,
+            size: (MediaQuery.of(context).orientation == Orientation.landscape)
+                ? Size.square(
+                    min(MediaQuery.of(context).size.height / 2.5, 300))
+                : Size.square(
+                    min(MediaQuery.of(context).size.width / 2.5, 300)),
+            initialChartData: _updateUsageData(),
+            holeLabel: "${(nodesUsed / nodesTotal * 100).round()}%",
+            chartType: CircularChartType.Radial,
+            labelStyle: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        Container(
+          Center(
 //          width: MediaQuery.of(context).size.width / 1.8,
-          width: MediaQuery.of(context).size.width -
-              circularChartSize(context).width -
-              70,
-          child: Column(
-            children: [
-              Text(
-                "$name",
-                textScaleFactor: 1.5,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Divider(),
-              // Summary Statistics
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            widthFactor: 1.2,
+            heightFactor: 1.2,
+            child: Container(
+              width:
+                  (MediaQuery.of(context).orientation == Orientation.portrait)
+                      ? min(MediaQuery.of(context).size.width / 2.5, 300)
+                      : min(MediaQuery.of(context).size.height / 2.5, 300),
+//              height:
+//                  (MediaQuery.of(context).orientation == Orientation.portrait)
+//                      ? min(MediaQuery.of(context).size.width / 2.5, 300)
+//                      : min(MediaQuery.of(context).size.height / 2.5, 300),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Jobs",
-                          textScaleFactor: 1.1,
-                        ),
-                        Text(
-                          "Queued",
-                          textScaleFactor: 1.1,
-                        ),
-                        Text(
-                          "Reserved",
-                          textScaleFactor: 1.1,
-                        ),
-                        Text(
-                          "Nodes",
-                          textScaleFactor: 1.1,
-                        ),
-//                        Text(
-//                          "Usage",
-//                          textScaleFactor: 1.1,
-//                        ),
-                        Text(
-                          "Core Hours",
-                          textScaleFactor: 1.1,
-                        ),
+                  Text(
+                    "$name",
+                    textScaleFactor: 1.5,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Divider(),
+                  // Summary Statistics
+                  Table(
+                      defaultVerticalAlignment:
+                          TableCellVerticalAlignment.middle,
+                      columnWidths: columnWidthMap,
+                      children: <TableRow>[
+                        TableRow(children: [
+                          Text(
+                            "Jobs",
+                            textScaleFactor: 1.1,
+                          ),
+                          Align(
+                            child: Text(
+                              "${activity.runningJobs.length.toString()}",
+                              textScaleFactor: 1.1,
+                            ),
+                            alignment: Alignment.centerRight,
+                          ),
+                        ]),
+                        TableRow(children: [
+                          Text(
+                            "Queued",
+                            textScaleFactor: 1.1,
+                          ),
+                          Align(
+                            child: Text(
+                              "${activity.queuedJobs.length.toString()}",
+                              textScaleFactor: 1.1,
+                            ),
+                            alignment: Alignment.centerRight,
+                          ),
+                        ]),
+                        TableRow(children: [
+                          Text(
+                            "Reserved",
+                            textScaleFactor: 1.1,
+                          ),
+                          Align(
+                            child: Text(
+                              "${activity.reservations.length}",
+                              textScaleFactor: 1.1,
+                            ),
+                            alignment: Alignment.centerRight,
+                          ),
+                        ]),
+                        TableRow(children: [
+                          Text(
+                            "Nodes",
+                            textScaleFactor: 1.1,
+                          ),
+                          Align(
+                            child: Text(
+                              "$nodesUsed",
+                              textScaleFactor: 1.1,
+                            ),
+                            alignment: Alignment.centerRight,
+                          ),
+                        ]),
+                        TableRow(children: [
+                          Text(
+                            "Usage",
+                            textScaleFactor: 1.1,
+                          ),
+                          Align(
+                            child: Text(
+                              "${coreHoursScheduled.round().toString()}",
+                              textScaleFactor: 1.1,
+                            ),
+                            alignment: Alignment.centerRight,
+                          ),
+                        ]),
                       ]),
-                  Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                    Text(
-                      "${activity.runningJobs.length.toString()}",
-                      textScaleFactor: 1.1,
-                    ),
-                    Text(
-                      "${activity.queuedJobs.length.toString()}",
-                      textScaleFactor: 1.1,
-                    ),
-                    Text(
-                      "${activity.reservations.length}",
-                      textScaleFactor: 1.1,
-                    ),
-                    Text(
-                      "${nodesUsed}",
-                      textScaleFactor: 1.1,
-                    ),
-//                    Text(
-//                      "${(nodesUsed / nodesTotal * 100).round()}%",
-//                      textScaleFactor: 1.1,
-//                    ),
-                    Text(
-                      "${coreHoursScheduled.round().toString()}",
-                      textScaleFactor: 1.1,
-                    ),
-                  ])
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

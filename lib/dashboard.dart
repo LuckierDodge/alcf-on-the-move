@@ -81,23 +81,56 @@ class _DashboardState extends State<Dashboard> {
 
   /// Create the list of machines, one card per machine.
   Widget _machineList() {
-    return ListView.builder(
-        padding: const EdgeInsets.all(10.0),
-        itemBuilder: (context, i) {
-          if (i < machineStatuses.length) {
-            // Creates a Status card for the machine
-            return machineStatuses[i];
-          } else if (i == machineStatuses.length) {
-            // Return the Last Updated time at the end
-            return Card(
-              child: Container(
-                  padding: EdgeInsets.all(10.0),
-                  child: Text("Last Updated: $updatedTime")),
-            );
-          } else {
-            return null;
-          }
-        });
+    if (MediaQuery.of(context).orientation == Orientation.portrait) {
+      return ListView.builder(
+          padding: const EdgeInsets.all(10.0),
+          itemBuilder: (context, i) {
+            if (i < machineStatuses.length) {
+              // Creates a Status card for the machine
+              return machineStatuses[i];
+            } else if (i == machineStatuses.length) {
+              // Return the Last Updated time at the end
+              return Card(
+                child: Center(
+                  child: Container(
+                    padding: EdgeInsets.all(10.0),
+                    child: Align(
+                      child: Text("Last Updated: $updatedTime"),
+                      alignment: Alignment.centerLeft,
+                    ),
+                  ),
+                ),
+              );
+            } else {
+              return null;
+            }
+          });
+    } else {
+      return ListView.builder(
+          padding: const EdgeInsets.all(10.0),
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (context, i) {
+            if (i < machineStatuses.length) {
+              // Creates a Status card for the machine
+              return machineStatuses[i];
+            } else if (i == machineStatuses.length) {
+              // Return the Last Updated time at the end
+              return Card(
+                child: Center(
+                  child: Container(
+                    padding: EdgeInsets.all(10.0),
+                    child: Align(
+                      child: Text("Last Updated: $updatedTime"),
+                      alignment: Alignment.centerLeft,
+                    ),
+                  ),
+                ),
+              );
+            } else {
+              return null;
+            }
+          });
+    }
   }
 
   List<Widget> _getMachineStatuses() {
