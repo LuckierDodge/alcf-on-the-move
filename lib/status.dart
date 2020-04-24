@@ -58,8 +58,8 @@ class StatusState extends State<Status> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Activity>(
-        future: fetchActivity(name),
-//        future: fetchActivityDummy(name),
+//        future: fetchActivity(name),
+        future: fetchActivityDummy(name),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             activity = snapshot.data;
@@ -231,8 +231,9 @@ class StatusState extends State<Status> {
                         ]),
                         TableRow(children: [
                           Text(
-                            "Usage",
+                            "Corehours Usage",
                             textScaleFactor: 1.1,
+                            softWrap: true,
                           ),
                           Align(
                             child: Text(

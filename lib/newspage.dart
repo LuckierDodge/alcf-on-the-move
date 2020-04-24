@@ -76,7 +76,7 @@ class _NewsPageState extends State<NewsPage> {
         future: ALCFRSS().getFeed(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return announcmentList(snapshot.data);
+            return announcementList(snapshot.data);
           } else if (snapshot.hasError) {
             return Card(
               child: Center(
@@ -105,7 +105,7 @@ class _NewsPageState extends State<NewsPage> {
         });
   }
 
-  ListView announcmentList(items) {
+  ListView announcementList(items) {
     return ListView.builder(
         padding: const EdgeInsets.all(10.0),
         itemBuilder: (context, i) {
@@ -115,9 +115,9 @@ class _NewsPageState extends State<NewsPage> {
                 padding: EdgeInsets.all(10.0),
                 child: Column(
                   children: <Widget>[
-                    Text("Get in Touch with ALCF:"),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Wrap(
+                      direction: Axis.horizontal,
+                      spacing: 15,
                       children: <Widget>[
                         Column(
                           children: <Widget>[
@@ -224,64 +224,62 @@ class _NewsPageState extends State<NewsPage> {
             },
             child: Container(
                 padding: EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    FutureBuilder(
-                        future: item.getImage(),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return Image.network(
-                              snapshot.data,
-                              width: MediaQuery.of(context).size.width / 2 - 30,
-                              fit: BoxFit.fitWidth,
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(
-                              heightFactor: 10,
-                              widthFactor: 10,
-                              child: Text(
-                                "Error: ${snapshot.error}",
-                              ),
-                            );
-                          } else {
-                            return Container(
-                                child: Center(
-                                  child: CircularProgressIndicator(),
-                                ),
+                child: Column(children: [
+                  Container(
+                    child: Text(
+                      item.title.toString(),
+                      style: TextStyle(fontSize: 20),
+                      textAlign: TextAlign.left,
+                    ),
+                    alignment: Alignment.centerLeft,
+                  ),
+                  Divider(),
+                  Row(
+                    children: [
+                      FutureBuilder(
+                          future: item.getImage(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Image.network(
+                                snapshot.data,
                                 width:
-                                    MediaQuery.of(context).size.width / 2 - 30);
-                          }
-                        }),
-                    Container(
-                        child: Column(
-                          children: <Widget>[
-                            Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 4.0),
-                              child: Center(
-                                  child: Text(
-                                item.title.toString(),
-                                style: TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold),
-                                textAlign: TextAlign.center,
-                              )),
-                            ),
-                            Divider(),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
-                              child: Center(
-                                  child: Text(item.text.toString().replaceAll(
-                                      RegExp(r"<[^>]*>",
-                                          multiLine: true, caseSensitive: true),
-                                      ''))),
-                            )
-                          ],
-                        ),
-                        width: MediaQuery.of(context).size.width / 2 - 30),
-                  ],
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                ))));
+                                    MediaQuery.of(context).size.width / 2 - 30,
+                                fit: BoxFit.fitWidth,
+                              );
+                            } else if (snapshot.hasError) {
+                              return Center(
+                                heightFactor: 10,
+                                widthFactor: 10,
+                                child: Text(
+                                  "Error: ${snapshot.error}",
+                                ),
+                              );
+                            } else {
+                              return Container(
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                  width: MediaQuery.of(context).size.width / 2 -
+                                      30);
+                            }
+                          }),
+                      Container(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
+                            child: Center(
+                                child: Text(item.text.toString().replaceAll(
+                                    RegExp(r"<[^>]*>",
+                                        multiLine: true, caseSensitive: true),
+                                    ''))),
+                          ),
+//                          ],
+//                        ),
+                          width: MediaQuery.of(context).size.width / 2 - 30),
+                    ],
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  )
+                ]))));
   }
 
   /// Opens a link in a browser

@@ -36,6 +36,7 @@ dependencies:
   webfeed: ^0.4.2
   html: ^0.14.0+3
   splashscreen: ^1.2.0
+  shared_preferences: ^0.5.7
 
 dev_dependencies:
   flutter_test:

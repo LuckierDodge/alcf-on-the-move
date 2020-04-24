@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:splashscreen/splashscreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dashboard.dart';
 
@@ -19,6 +20,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
+    _checkInitialSetup();
     return new SplashScreen(
       seconds: 2,
       navigateAfterSeconds: Dashboard(title: 'ALCF On the Move'),
@@ -28,5 +30,20 @@ class _MyAppState extends State<MyApp> {
       backgroundColor: ThemeData.dark().canvasColor,
       styleTextUnderTheLoader: new TextStyle(),
     );
+  }
+
+  _checkInitialSetup() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getKeys().isEmpty) {
+//      prefs.setStringList("runningJobHeaders", [
+//        "Job ID",
+//        "Project",
+//        "Run Time",
+//        "Wall Time",
+//        "Nodes",
+//        "Mode",
+//        "Location",
+//      ]);
+    }
   }
 }

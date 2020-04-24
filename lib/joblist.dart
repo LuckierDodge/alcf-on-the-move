@@ -21,6 +21,46 @@ class JobListState extends State<JobList> {
   List<Reservation> filteredReservations;
   TextEditingController _textController = TextEditingController();
 
+  num runningSortColumn = 0;
+  bool runningSortAscending = false;
+  num queuedSortColumn = 0;
+  bool queuedSortAscending = false;
+  num reservedSortColumn = 0;
+  bool reservedSortAscending = false;
+
+  static final List runningJobHeaders = [
+    "Job ID",
+    "Project",
+    "Run Time",
+    "Wall Time",
+    "Nodes",
+    "Mode",
+    "Location",
+  ];
+  static final List queuedJobHeaders = [
+    "Job ID",
+    "Project",
+    "Queue",
+    "Queued Time",
+    "Wall Time",
+    "Score",
+    "Nodes",
+    "State",
+    "Mode",
+  ];
+  static final List reservedJobHeaders = [
+    "Name",
+    "Start Time",
+    "Duration",
+    "Queue",
+    "T-Minus",
+  ];
+  static final List headerListMaster = [
+    runningJobHeaders,
+    queuedJobHeaders,
+    reservedJobHeaders
+  ];
+
   JobListState(this.activity);
 
   @override
@@ -43,47 +83,11 @@ class JobListState extends State<JobList> {
       padding: const EdgeInsets.all(10.0),
       children: <Widget>[
         filterBar(),
-        jobTable(
-            "Running Jobs",
-            [
-              "Job ID",
-              "Project",
-              "Run Time",
-              "Wall Time",
-              "Nodes Used",
-              "Mode",
-              "Location",
-            ],
-            runningJobs[0],
-            runningJobs[1]),
+        jobTable("Running Jobs", runningJobs[0], runningJobs[1], 0),
         Divider(),
-        jobTable(
-            "Queued Jobs",
-            [
-              "Job ID",
-              "Project",
-              "Queue",
-              "Queued Time",
-              "Wall Time",
-              "Score",
-              "Nodes Requested",
-              "State",
-              "Mode",
-            ],
-            queuedJobs[0],
-            queuedJobs[1]),
+        jobTable("Queued Jobs", queuedJobs[0], queuedJobs[1], 1),
         Divider(),
-        jobTable(
-            "Reservations",
-            [
-              "Name",
-              "Start Time",
-              "Duration",
-              "Queue",
-              "T-Minus",
-            ],
-            reservations[0],
-            reservations[1]),
+        jobTable("Reservations", reservations[0], reservations[1], 2),
       ],
     );
   }
@@ -91,7 +95,9 @@ class JobListState extends State<JobList> {
   Widget filterBar() {
     return TextField(
       controller: _textController,
-      decoration: InputDecoration(hintText: "Filter Jobs or Reservations"),
+      decoration: InputDecoration(
+          hintText: "Filter Jobs or Reservations",
+          icon: const Icon(Icons.search)),
       onChanged: _onChanged,
     );
   }
@@ -182,7 +188,170 @@ class JobListState extends State<JobList> {
     }
   }
 
-  Widget jobTable(title, columnList, ids, jobTable) {
+  changeSort(index, tableNumber) {
+    if (index == -1) return; //TODO: Sort by notification subscription
+    switch (tableNumber) {
+      case 0:
+        _sortRunning(index);
+        break;
+      case 1:
+        _sortQueued(index);
+        break;
+      case 2:
+        _sortReserved(index);
+        break;
+    }
+  }
+
+  _sortRunning(columnNumber) {
+    setState(() {
+      if (columnNumber == runningSortColumn) {
+        runningSortAscending = !runningSortAscending;
+      } else {
+        runningSortAscending = false;
+      }
+      switch (columnNumber) {
+        case 0:
+          filteredRunningJobs.sort((a, b) => (runningSortAscending)
+              ? b.jobid.compareTo(a.jobid)
+              : a.jobid.compareTo(b.jobid));
+          break;
+        case 1:
+          filteredRunningJobs.sort((a, b) => (runningSortAscending)
+              ? b.project.compareTo(a.project)
+              : a.project.compareTo(b.project));
+          break;
+        case 2:
+          // TODO: Sort on time instead of alphabetical
+          filteredRunningJobs.sort((a, b) => (runningSortAscending)
+              ? b.runtimef.compareTo(a.runtimef)
+              : a.runtimef.compareTo(b.runtimef));
+          break;
+        case 3:
+          filteredRunningJobs.sort((a, b) => (runningSortAscending)
+              ? b.walltime.compareTo(a.walltime)
+              : a.walltime.compareTo(b.walltime));
+          break;
+        case 4:
+          filteredRunningJobs.sort((a, b) => (runningSortAscending)
+              ? b.nodes.compareTo(a.nodes)
+              : a.nodes.compareTo(b.nodes));
+          break;
+        case 4:
+          filteredRunningJobs.sort((a, b) => (runningSortAscending)
+              ? b.mode.compareTo(a.mode)
+              : a.mode.compareTo(b.mode));
+          break;
+        case 5:
+        default:
+          break;
+      }
+      runningSortColumn = columnNumber;
+    });
+  }
+
+  _sortQueued(columnNumber) {
+    setState(() {
+      if (columnNumber == queuedSortColumn) {
+        queuedSortAscending = !queuedSortAscending;
+      } else {
+        queuedSortAscending = false;
+      }
+      switch (columnNumber) {
+        case 0:
+          filteredQueuedJobs.sort((a, b) => (queuedSortAscending)
+              ? b.jobid.compareTo(a.jobid)
+              : a.jobid.compareTo(b.jobid));
+          break;
+        case 1:
+          filteredQueuedJobs.sort((a, b) => (queuedSortAscending)
+              ? b.project.compareTo(a.project)
+              : a.project.compareTo(b.project));
+          break;
+        case 2:
+          filteredQueuedJobs.sort((a, b) => (queuedSortAscending)
+              ? b.queue.compareTo(a.queue)
+              : a.queue.compareTo(b.queue));
+          break;
+        case 3:
+          // TODO: Sort on time instead of alphabetical
+          filteredQueuedJobs.sort((a, b) => (queuedSortAscending)
+              ? b.queuedtimef.compareTo(a.queuedtimef)
+              : a.queuedtimef.compareTo(b.queuedtimef));
+          break;
+        case 4:
+          filteredQueuedJobs.sort((a, b) => (queuedSortAscending)
+              ? b.walltime.compareTo(a.walltime)
+              : a.walltime.compareTo(b.walltime));
+          break;
+        case 5:
+          filteredQueuedJobs.sort((a, b) => (queuedSortAscending)
+              ? b.score.compareTo(a.score)
+              : a.score.compareTo(b.score));
+          break;
+        case 6:
+          filteredQueuedJobs.sort((a, b) => (queuedSortAscending)
+              ? b.nodes.compareTo(a.nodes)
+              : a.nodes.compareTo(b.nodes));
+          break;
+        case 7:
+          filteredQueuedJobs.sort((a, b) => (queuedSortAscending)
+              ? b.state.compareTo(a.state)
+              : a.state.compareTo(b.state));
+          break;
+        case 8:
+          filteredQueuedJobs.sort((a, b) => (queuedSortAscending)
+              ? b.mode.compareTo(a.mode)
+              : a.mode.compareTo(b.mode));
+          break;
+        default:
+          break;
+      }
+      queuedSortColumn = columnNumber;
+    });
+  }
+
+  _sortReserved(columnNumber) {
+    setState(() {
+      if (columnNumber == reservedSortColumn) {
+        reservedSortAscending = !reservedSortAscending;
+      } else {
+        reservedSortAscending = false;
+      }
+      switch (columnNumber) {
+        case 0:
+          filteredReservations.sort((a, b) => (reservedSortAscending)
+              ? b.name.compareTo(a.name)
+              : a.name.compareTo(b.name));
+          break;
+        case 1:
+          filteredReservations.sort((a, b) => (reservedSortAscending)
+              ? b.start.compareTo(a.start)
+              : a.start.compareTo(b.start));
+          break;
+        case 2:
+          filteredReservations.sort((a, b) => (reservedSortAscending)
+              ? b.duration.compareTo(a.duration)
+              : a.duration.compareTo(b.duration));
+          break;
+        case 3:
+          filteredReservations.sort((a, b) => (reservedSortAscending)
+              ? b.queue.compareTo(a.queue)
+              : a.queue.compareTo(b.queue));
+          break;
+        case 4:
+          filteredReservations.sort((a, b) => (reservedSortAscending)
+              ? b.tminus.compareTo(a.tminus)
+              : a.tminus.compareTo(b.tminus));
+          break;
+        default:
+          break;
+      }
+      reservedSortColumn = columnNumber;
+    });
+  }
+
+  Widget jobTable(title, ids, jobTable, tableNumber) {
     var columnWidthMap = Map<int, TableColumnWidth>();
     columnWidthMap[0] = IntrinsicColumnWidth();
     return Column(
@@ -196,7 +365,7 @@ class JobListState extends State<JobList> {
             padding: EdgeInsets.fromLTRB(5, 10, 5, 10)),
         Table(
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          children: _tableChildren(columnList, ids, jobTable),
+          children: _tableChildren(ids, jobTable, tableNumber),
           columnWidths: columnWidthMap,
         )
       ],
@@ -204,17 +373,17 @@ class JobListState extends State<JobList> {
     );
   }
 
-  List<TableRow> _tableChildren(columnList, ids, jobTable) {
+  List<TableRow> _tableChildren(ids, jobTable, tableNumber) {
     List<TableRow> idColumn = [];
     List<TableRow> otherColumn = [];
     idColumn.add(
       TableRow(children: [
-        headerCell("Notify"),
-        headerCell(columnList[0]),
+        headerCell(-1, tableNumber),
+        headerCell(0, tableNumber),
       ]),
     );
     otherColumn.add(TableRow(
-      children: columnHeader(columnList),
+      children: columnHeader(tableNumber),
     ));
     ids.forEach((id) => {idColumn.add(id)});
     jobTable.forEach((job) => {otherColumn.add(job)});
@@ -245,16 +414,10 @@ class JobListState extends State<JobList> {
     ];
   }
 
-  List<Widget> columnHeader(columnList) {
+  List<Widget> columnHeader(tableNumber) {
     List<Widget> widgetList = [];
-    columnList.forEach((column) => {
-          if (column != columnList[0])
-            {
-              widgetList.add(
-                headerCell(column),
-              )
-            }
-        });
+    for (int i = 1; i < headerListMaster[tableNumber].length; i++)
+      widgetList.add(headerCell(i, tableNumber));
     return widgetList;
   }
 
@@ -272,10 +435,15 @@ class JobListState extends State<JobList> {
     );
   }
 
-  headerCell(text) {
-    return Container(
-      child: Text(text, style: TextStyle(fontWeight: FontWeight.bold)),
-      padding: EdgeInsets.fromLTRB(5, 20, 5, 20),
+  headerCell(index, tableNumber) {
+    return InkWell(
+      child: Container(
+        child: Text(
+            (index >= 0) ? headerListMaster[tableNumber][index] : "Notify",
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        padding: EdgeInsets.fromLTRB(5, 20, 5, 20),
+      ),
+      onTap: () => {changeSort(index, tableNumber)},
     );
   }
 
