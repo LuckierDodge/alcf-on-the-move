@@ -69,6 +69,27 @@ flutter:
     - family:  NewsFeed
       fonts:
        - asset: fonts/NewsFeed.ttf
+    - family: ProximaNova
+      fonts:
+        - asset: assets/fonts/proxima/ProximaNova-Black.otf
+        - asset: assets/fonts/proxima/ProximaNova-Bold.otf
+        - asset: assets/fonts/proxima/ProximaNova-BoldIt.otf
+        - asset: assets/fonts/proxima/ProximaNova-ExtraBold.otf
+        - asset: assets/fonts/proxima/ProximaNova-Light.otf
+        - asset: assets/fonts/proxima/ProximaNova-LightItalic.otf
+        - asset: assets/fonts/proxima/ProximaNova-RegItalic.otf
+        - asset: assets/fonts/proxima/ProximaNova-Regular.otf
+        - asset: assets/fonts/proxima/ProximaNova-RegularItalic.otf
+        - asset: assets/fonts/proxima/ProximaNova-Semibold.otf
+        - asset: assets/fonts/proxima/ProximaNova-SemiboldItalic.otf
+        - asset: assets/fonts/proxima/ProximaNova-SemiboldItalic.otf
+        - asset: assets/fonts/proxima/ProximaNovaCond-Light.otf
+        - asset: assets/fonts/proxima/ProximaNovaCond-LightIt.otf
+        - asset: assets/fonts/proxima/ProximaNovaCond-Regular.otf
+        - asset: assets/fonts/proxima/ProximaNovaCond-RegularIt.otf
+        - asset: assets/fonts/proxima/ProximaNovaCond-Semibold.otf
+        - asset: assets/fonts/proxima/ProximaNovaCond-SemiboldIt.otf
+          weight: 700
 
   # To add assets to your application, add an assets section, like this:
   assets:

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'swatch.dart';
 
 import 'activity.dart';
 import 'statuspage.dart';
@@ -36,8 +37,8 @@ class StatusState extends State<Status> {
   /// Grabs the latest activity data from status.alcf.anl.gov
   Future<void> updateStatus() async {
     try {
-//      Activity newActivity = await fetchActivity(name);
-      Activity newActivity = await fetchActivityDummy(name);
+      Activity newActivity = await fetchActivity(name);
+//      Activity newActivity = await fetchActivityDummy(name);
       var coreHours = 0.0;
       newActivity.queuedJobs.forEach((job) => {
             coreHours += job.walltime / 60 / 60 * job.nodes * coresPerNode[name]
@@ -58,8 +59,8 @@ class StatusState extends State<Status> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Activity>(
-//        future: fetchActivity(name),
-        future: fetchActivityDummy(name),
+        future: fetchActivity(name),
+//        future: fetchActivityDummy(name),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             activity = snapshot.data;
@@ -282,10 +283,11 @@ class StatusState extends State<Status> {
     return <CircularStackEntry>[
       new CircularStackEntry(
         <CircularSegmentEntry>[
-          new CircularSegmentEntry(nodesUsed.toDouble(), Colors.lightGreen,
-              rankKey: 'Active'),
           new CircularSegmentEntry(
-              (nodesTotal - nodesUsed).toDouble(), Colors.grey[200],
+              nodesUsed.toDouble(), Theme.of(context).primaryColor,
+              rankKey: 'Active'),
+          new CircularSegmentEntry((nodesTotal - nodesUsed).toDouble(),
+              ALCFSwatch['Gray'].materialColor,
               rankKey: 'Unused')
         ],
         rankKey: 'Resource Usage',

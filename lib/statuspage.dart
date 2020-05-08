@@ -9,6 +9,7 @@ import 'joblist.dart';
 import 'tablevisualization.dart';
 import 'utils.dart';
 import 'settings.dart';
+import 'swatch.dart';
 
 /// Status
 ///
@@ -63,8 +64,8 @@ class StatusPageState extends State<StatusPage>
   /// Grabs the latest activity data from status.alcf.anl.gov
   Future<void> updateStatus() async {
     try {
-//      Activity newActivity = await fetchActivity(name);
-      Activity newActivity = await fetchActivityDummy(name);
+      Activity newActivity = await fetchActivity(name);
+//      Activity newActivity = await fetchActivityDummy(name);
       var coreHours = 0.0;
       newActivity.queuedJobs.forEach((job) => {
             coreHours += job.walltime / 60 / 60 * job.nodes * coresPerNode[name]
@@ -119,8 +120,8 @@ class StatusPageState extends State<StatusPage>
 
   Widget _futureStatus() {
     return FutureBuilder<Activity>(
-//        future: fetchActivity(name),
-        future: fetchActivityDummy(name),
+        future: fetchActivity(name),
+//        future: fetchActivityDummy(name),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             activity = snapshot.data;
@@ -366,10 +367,11 @@ class StatusPageState extends State<StatusPage>
     return <CircularStackEntry>[
       new CircularStackEntry(
         <CircularSegmentEntry>[
-          new CircularSegmentEntry(nodesUsed.toDouble(), Colors.lightGreen,
-              rankKey: 'Active'),
           new CircularSegmentEntry(
-              (nodesTotal - nodesUsed).toDouble(), Colors.grey[200],
+              nodesUsed.toDouble(), Theme.of(context).primaryColor,
+              rankKey: 'Active'),
+          new CircularSegmentEntry((nodesTotal - nodesUsed).toDouble(),
+              ALCFSwatch['Gray'].materialColor,
               rankKey: 'Unused')
         ],
         rankKey: 'Resource Usage',
