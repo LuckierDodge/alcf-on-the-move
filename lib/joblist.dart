@@ -14,12 +14,14 @@ class JobList extends StatefulWidget {
   JobListState createState() => JobListState(activity);
 }
 
-class JobListState extends State<JobList> {
+class JobListState extends State<JobList> with SingleTickerProviderStateMixin {
   Activity activity;
   List<RunningJob> filteredRunningJobs;
   List<QueuedJob> filteredQueuedJobs;
   List<Reservation> filteredReservations;
   TextEditingController _textController = TextEditingController();
+  TabController controller;
+  int tabIndex = 0;
 
   num runningSortColumn = 0;
   bool runningSortAscending = false;
@@ -69,6 +71,19 @@ class JobListState extends State<JobList> {
     filteredRunningJobs = activity.runningJobs;
     filteredQueuedJobs = activity.queuedJobs;
     filteredReservations = activity.reservations;
+    controller = TabController(length: 3, vsync: this, initialIndex: 0);
+    controller.addListener(() => {
+          if (controller.indexIsChanging)
+            setState(() {
+              tabIndex = controller.index;
+            })
+        });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   /// Builds the widget
@@ -77,19 +92,45 @@ class JobListState extends State<JobList> {
     var runningJobs = _runningJobs();
     var queuedJobs = _queuedJobs();
     var reservations = _reservations();
-    return ListView(
-      physics: NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      padding: const EdgeInsets.all(10.0),
-      children: <Widget>[
-        filterBar(),
-        jobTable("Running Jobs", runningJobs[0], runningJobs[1], 0),
-        Divider(),
-        jobTable("Queued Jobs", queuedJobs[0], queuedJobs[1], 1),
-        Divider(),
-        jobTable("Reservations", reservations[0], reservations[1], 2),
-      ],
-    );
+//    return ListView(
+//      physics: NeverScrollableScrollPhysics(),
+//      shrinkWrap: true,
+//      padding: const EdgeInsets.all(10.0),
+//      children: <Widget>[
+//        filterBar(),
+//        jobTable("Running Jobs", runningJobs[0], runningJobs[1], 0),
+//        Divider(),
+//        jobTable("Queued Jobs", queuedJobs[0], queuedJobs[1], 1),
+//        Divider(),
+//        jobTable("Reservations", reservations[0], reservations[1], 2),
+//      ],
+//    );
+    return Column(children: [
+      Container(
+        height: 60,
+        child: TabBar(
+          tabs: [
+            Icon(Icons.directions_run),
+            Icon(Icons.list),
+            Icon(Icons.access_time)
+          ],
+          controller: controller,
+        ),
+      ),
+      ListView(
+        children: [
+          filterBar(),
+          [
+            jobTable("Running Jobs", runningJobs[0], runningJobs[1], 0),
+            jobTable("Queued Jobs", queuedJobs[0], queuedJobs[1], 1),
+            jobTable("Reservations", reservations[0], reservations[1], 2),
+          ][tabIndex]
+        ],
+        padding: EdgeInsets.all(10),
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+      ),
+    ]);
   }
 
   Widget filterBar() {
@@ -430,8 +471,9 @@ class JobListState extends State<JobList> {
 
   textCellColored(text, color) {
     return Container(
-      child: Text(text, style: TextStyle(backgroundColor: parseColor(color))),
+      child: Text(text, style: TextStyle(backgroundColor: Colors.black)),
       padding: EdgeInsets.fromLTRB(5, 20, 5, 20),
+//      color: parseColor(color),
     );
   }
 
@@ -453,9 +495,12 @@ class JobListState extends State<JobList> {
     List<TableRow> jobTable = [];
     filteredRunningJobs.forEach((job) {
       idColumn.add(TableRow(children: [
-        IconButton(
-          icon: Icon(Icons.notifications_none),
-          onPressed: () => {},
+        Container(
+          child: IconButton(
+            icon: Icon(Icons.notifications_none),
+            onPressed: () => {},
+            color: parseColor(job.color),
+          ),
 //          color: parseColor(job.color),
         ),
         textCellColored(job.jobid.toString(), job.color),

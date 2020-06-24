@@ -6,14 +6,14 @@ import 'package:flutter/material.dart';
 /// than one place
 
 /// Generates a list of ints from a "1-5,10" style list
-hyphen_range(String s) {
+hyphenRange(String s) {
   List<int> r = [];
   s.split(",").forEach((x) {
     List<String> t = x.split('-');
     (t.length == 1)
         ? r.add(int.parse(t[0]))
         : r.addAll(Iterable<int>.generate(
-            int.parse(t[1]) - int.parse(t[0]), (i) => i + int.parse(t[0])));
+            int.parse(t[1]) - int.parse(t[0]) + 1, (i) => i + int.parse(t[0])));
   });
   r.sort();
   return r;
@@ -29,6 +29,7 @@ parseColor(String c) {
       int.parse(c.toString().substring(5, 7), radix: 16),
     );
   } catch (exception) {
+    print(c);
     return Color.fromARGB(255, 255, 255, 255);
   }
 }

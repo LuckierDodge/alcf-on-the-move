@@ -23,15 +23,12 @@ class StatusPage extends StatefulWidget {
   StatusPageState createState() => StatusPageState(name);
 }
 
-class StatusPageState extends State<StatusPage>
-    with SingleTickerProviderStateMixin {
+class StatusPageState extends State<StatusPage> {
   final String name;
   static var coresPerNode = {"Cooley": 12, "Theta": 64};
   Activity activity;
   int nodesUsed = 0;
   int nodesTotal = 0;
-  TabController controller;
-  int tabIndex = 0;
   String updatedTime;
   ConnectivityResult connectivity = ConnectivityResult.none;
   // Key used to update the Circular Charts
@@ -46,19 +43,6 @@ class StatusPageState extends State<StatusPage>
     super.initState();
     _checkConnectivity();
     updatedTime = getTime();
-    controller = TabController(length: 2, vsync: this, initialIndex: 0);
-    controller.addListener(() => {
-          if (controller.indexIsChanging)
-            setState(() {
-              tabIndex = controller.index;
-            })
-        });
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
   }
 
   /// Grabs the latest activity data from status.alcf.anl.gov
@@ -179,25 +163,27 @@ class StatusPageState extends State<StatusPage>
     return ListView(
       children: <Widget>[
         Card(child: _statusCardHeader()),
-        Card(
-            child: Column(
-          children: [
-            Container(
-              height: 60,
-              child: TabBar(
-                tabs: [
-                  Icon(Icons.grid_on),
-                  Icon(Icons.list),
-                ],
-                controller: controller,
-              ),
-            ),
-            [
-              TableVis(name, activity),
-              JobList(activity),
-            ][tabIndex],
-          ],
-        )),
+//        Card(
+//            child: Column(
+//          children: [
+//            Container(
+//              height: 60,
+//              child: TabBar(
+//                tabs: [
+//                  Icon(Icons.grid_on),
+//                  Icon(Icons.list),
+//                ],
+//                controller: controller,
+//              ),
+//            ),
+//            [
+//              TableVis(name, activity),
+//              JobList(activity),
+//            ][tabIndex],
+//          ],
+//        )),
+        Card(child: TableVis(name, activity)),
+        Card(child: JobList(activity)),
         Card(
           child: Center(
             child: Container(
