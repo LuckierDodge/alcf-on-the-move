@@ -68,8 +68,14 @@ class StatusState extends State<Status> {
             if (activity.maint != null && activity.maint) {
               return Card(
                 child: Center(
-                  widthFactor: 10,
-                  heightFactor: 10,
+                  widthFactor: (MediaQuery.of(context).orientation ==
+                          Orientation.portrait)
+                      ? 10
+                      : 2,
+                  heightFactor: (MediaQuery.of(context).orientation ==
+                          Orientation.portrait)
+                      ? 2
+                      : 10,
                   child: Text(
                     "$name is down for maintenance!",
                   ),

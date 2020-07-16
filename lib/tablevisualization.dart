@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'activity.dart';
 import 'utils.dart';
+import 'package:photo_view/photo_view.dart';
 
 /// A simple encapsulation of everything we need to know about a node
 class Node {
@@ -22,8 +23,8 @@ class TableVis extends StatefulWidget {
 }
 
 class CanvasSizeUtil {
-  static const _WIDTH = 500;
-  static const _HEIGHT = 500;
+  static const _WIDTH = 1000;
+  static const _HEIGHT = 1000;
 
   static Size _logicSize;
 
@@ -74,11 +75,14 @@ class RackPainter extends CustomPainter {
         paint.color = parseColor(nodesList[i + j * nodesX].color);
         canvas.drawRect(
             Rect.fromLTRB(
-                CanvasSizeUtil.getAxisX((i * 500 / nodesX).floorToDouble()),
-                CanvasSizeUtil.getAxisY((j * 500 / nodesY).floorToDouble()),
                 CanvasSizeUtil.getAxisX(
-                    ((i + 1) * 500 / nodesX).ceilToDouble()),
-                CanvasSizeUtil.getAxisY(((j + 1) * 500 / nodesY))
+                    (i * CanvasSizeUtil._WIDTH / nodesX).floorToDouble()),
+                CanvasSizeUtil.getAxisY(
+                    (j * CanvasSizeUtil._HEIGHT / nodesY).floorToDouble()),
+                CanvasSizeUtil.getAxisX(
+                    ((i + 1) * CanvasSizeUtil._WIDTH / nodesX).ceilToDouble()),
+                CanvasSizeUtil.getAxisY(
+                        ((j + 1) * CanvasSizeUtil._HEIGHT / nodesY))
                     .ceilToDouble()),
             paint);
       }
@@ -239,104 +243,96 @@ class TableVisState extends State<TableVis> {
       }
     }
 
-    // Reverse the list to match Gronkulator
-//    nodes = nodes.reversed.toList();
+    List<Widget> widgetList = [];
+    for (int j = 0; j < 6; j++) {
+      widgetList.add(Column(
+        children: [
+          Row(
+            children: [
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                Container(
+                  padding: EdgeInsets.all(1),
+                  child: Text(
+                    "c${11 - 2 * j}-0",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 8),
+                  ),
+                ),
+                _thetaRack(
+                  nodes.sublist(
+                    thetaRowOffset - (2 * j + 1) * 192,
+                    thetaRowOffset - 2 * j * 192,
+                  ),
+                )
+              ]),
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                Container(
+                  padding: EdgeInsets.all(1),
+                  child: Text(
+                    "c${10 - 2 * j}-0",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 8),
+                  ),
+                ),
+                _thetaRack(
+                  nodes.sublist(thetaRowOffset - (2 * j + 2) * 192,
+                      thetaRowOffset - (2 * j + 1) * 192),
+                )
+              ])
+            ],
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          ),
+          Divider(),
+          Row(
+            children: [
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                Container(
+                  padding: EdgeInsets.all(1),
+                  child: Text(
+                    "c${11 - 2 * j}-1",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 8),
+                  ),
+                ),
+                _thetaRack(
+                  nodes.sublist(
+                    2 * thetaRowOffset - (2 * j + 1) * 192,
+                    2 * thetaRowOffset - 2 * j * 192,
+                  ),
+                )
+              ]),
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                Container(
+                  padding: EdgeInsets.all(1),
+                  child: Text(
+                    "c${10 - 2 * j}-1",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 8),
+                  ),
+                ),
+                _thetaRack(nodes.sublist(
+                  2 * thetaRowOffset - (2 * j + 2) * 192,
+                  2 * thetaRowOffset - (2 * j + 1) * 192,
+                ))
+              ])
+            ],
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          ),
+        ],
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+      ));
+    }
 
     // Add row visualizations
     return Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
       Container(
-        child: PageView.builder(
-            physics: const AlwaysScrollableScrollPhysics(),
-            pageSnapping: false,
-            itemCount: 6,
-            itemBuilder: (context, j) {
-              if (j < 6) {
-                return Column(
-                  children: [
-                    Row(
-                      children: [
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                child: Text(
-                                  "c${11 - 2 * j}-0",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              _thetaRack(
-                                nodes.sublist(
-                                  thetaRowOffset - (2 * j + 1) * 192,
-                                  thetaRowOffset - 2 * j * 192,
-                                ),
-                              )
-                            ]),
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                child: Text(
-                                  "c${10 - 2 * j}-0",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              _thetaRack(
-                                nodes.sublist(
-                                    thetaRowOffset - (2 * j + 2) * 192,
-                                    thetaRowOffset - (2 * j + 1) * 192),
-                              )
-                            ])
-                      ],
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    ),
-                    Divider(),
-                    Row(
-                      children: [
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                child: Text(
-                                  "c${11 - 2 * j}-1",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              _thetaRack(
-                                nodes.sublist(
-                                  2 * thetaRowOffset - (2 * j + 1) * 192,
-                                  2 * thetaRowOffset - 2 * j * 192,
-                                ),
-                              )
-                            ]),
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                child: Text(
-                                  "c${10 - 2 * j}-1",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              _thetaRack(nodes.sublist(
-                                2 * thetaRowOffset - (2 * j + 2) * 192,
-                                2 * thetaRowOffset - (2 * j + 1) * 192,
-                              ))
-                            ])
-                      ],
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    ),
-                  ],
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                );
-              } else {
-                return null;
-              }
-            }),
-        height: (MediaQuery.of(context).size.width / 2 - 24) * 2 + 100,
+        child: ClipRect(
+            child: PhotoView.customChild(
+                child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: widgetList,
+        ))),
+        height: (MediaQuery.of(context).orientation == Orientation.portrait)
+            ? (MediaQuery.of(context).size.width / 2 - 24) + 100
+            : MediaQuery.of(context).size.height,
       )
     ]);
   }
@@ -344,12 +340,6 @@ class TableVisState extends State<TableVis> {
   /// Rack visualization for Theta
   _thetaRack(List nodeList) {
     List<Node> arrangedList = List();
-//    for (int i = 16; i < 208; i++) {
-//      nodeList[i - 16] = Node("0", 0,
-//          "#${(i).toRadixString(16)}${(i).toRadixString(16)}${(i).toRadixString(16)}");
-////          "#FFFFFF");
-//    }
-////    nodeList[32] = Node("0", 0, "#000000");
     List segmentedList = List(6);
     for (int i = 0; i < 6; i++) {
       segmentedList[i] = nodeList.sublist(i * 32, (i + 1) * 32);
@@ -374,8 +364,8 @@ class TableVisState extends State<TableVis> {
     }
 
     return Container(
-      width: (MediaQuery.of(context).size.width / 2 - 24),
-      height: (MediaQuery.of(context).size.width / 2 - 24),
+      width: (MediaQuery.of(context).size.width / 12 - 3),
+      height: (MediaQuery.of(context).size.width / 6),
       padding: EdgeInsets.all(4),
       child: CustomPaint(
         painter: RackPainter(8, 24, arrangedList),
