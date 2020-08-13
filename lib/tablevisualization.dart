@@ -325,11 +325,12 @@ class TableVisState extends State<TableVis> {
       Container(
         child: ClipRect(
             child: PhotoView.customChild(
-                child: Row(
+                child: Container(
+                    child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: widgetList,
-        ))),
+        )))),
         height: (MediaQuery.of(context).orientation == Orientation.portrait)
             ? (MediaQuery.of(context).size.width / 2 - 24) + 100
             : MediaQuery.of(context).size.height,

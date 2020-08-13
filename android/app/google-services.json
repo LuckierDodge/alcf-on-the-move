@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "65168624841",
+    "firebase_url": "https://alcf-on-the-move.firebaseio.com",
+    "project_id": "alcf-on-the-move",
+    "storage_bucket": "alcf-on-the-move.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:65168624841:android:0ddb6c5b7fe0fcbd7c9118",
+        "android_client_info": {
+          "package_name": "gov.anl.alcf.alcf_on_the_move"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "65168624841-acc68674at9qp58gmdgs99s4obdqnknn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtYVPz287cMbnhWjzgNx5j8HxnDcO8468"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "65168624841-acc68674at9qp58gmdgs99s4obdqnknn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

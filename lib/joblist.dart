@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:webfeed/domain/atom_category.dart';
 
 import 'activity.dart';
 import 'utils.dart';
@@ -92,19 +93,6 @@ class JobListState extends State<JobList> with SingleTickerProviderStateMixin {
     var runningJobs = _runningJobs();
     var queuedJobs = _queuedJobs();
     var reservations = _reservations();
-//    return ListView(
-//      physics: NeverScrollableScrollPhysics(),
-//      shrinkWrap: true,
-//      padding: const EdgeInsets.all(10.0),
-//      children: <Widget>[
-//        filterBar(),
-//        jobTable("Running Jobs", runningJobs[0], runningJobs[1], 0),
-//        Divider(),
-//        jobTable("Queued Jobs", queuedJobs[0], queuedJobs[1], 1),
-//        Divider(),
-//        jobTable("Reservations", reservations[0], reservations[1], 2),
-//      ],
-//    );
     return Column(children: [
       Container(
         height: 60,
@@ -471,9 +459,18 @@ class JobListState extends State<JobList> with SingleTickerProviderStateMixin {
 
   textCellColored(text, color) {
     return Container(
-      child: Text(text, style: TextStyle(backgroundColor: Colors.black)),
+      child: Text(text,
+          style: TextStyle(
+              // Color chosen based on:
+              // https://stackoverflow.com/questions/3942878/how-to-decide-font-color-in-white-or-black-depending-on-background-color
+              color: ((color.red * 0.299 +
+                          color.green * 0.587 +
+                          color.blue * 0.114) >
+                      160)
+                  ? Colors.black
+                  : Colors.white)),
       padding: EdgeInsets.fromLTRB(5, 20, 5, 20),
-//      color: parseColor(color),
+      color: color,
     );
   }
 
@@ -494,16 +491,15 @@ class JobListState extends State<JobList> with SingleTickerProviderStateMixin {
     List<TableRow> idColumn = [];
     List<TableRow> jobTable = [];
     filteredRunningJobs.forEach((job) {
+      var color = parseColor(job.color);
       idColumn.add(TableRow(children: [
         Container(
           child: IconButton(
-            icon: Icon(Icons.notifications_none),
-            onPressed: () => {},
-            color: parseColor(job.color),
-          ),
-//          color: parseColor(job.color),
+              icon: Icon(Icons.notifications_none),
+              onPressed: () => {},
+              color: Colors.white),
         ),
-        textCellColored(job.jobid.toString(), job.color),
+        textCellColored(job.jobid.toString(), color),
       ]));
       jobTable.add(TableRow(
         children: [
