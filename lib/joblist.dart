@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:webfeed/domain/atom_category.dart';
 
 import 'activity.dart';
 import 'utils.dart';
