@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'activity.dart';
@@ -68,11 +69,30 @@ class RackPainter extends CustomPainter {
     }
     var paint = Paint()
       ..style = PaintingStyle.fill
-      ..color = Colors.blue
+      ..color = Colors.black
       ..isAntiAlias = true;
     for (int i = 0; i < nodesX; i++) {
       for (int j = 0; j < nodesY; j++) {
         paint.color = parseColor(nodesList[i + j * nodesX].color);
+        canvas.drawRect(
+            Rect.fromLTRB(
+                CanvasSizeUtil.getAxisX(
+                    (i * CanvasSizeUtil._WIDTH / nodesX).floorToDouble()),
+                CanvasSizeUtil.getAxisY(
+                    (j * CanvasSizeUtil._HEIGHT / nodesY).floorToDouble()),
+                CanvasSizeUtil.getAxisX(
+                    ((i + 1) * CanvasSizeUtil._WIDTH / nodesX).ceilToDouble()),
+                CanvasSizeUtil.getAxisY(
+                        ((j + 1) * CanvasSizeUtil._HEIGHT / nodesY))
+                    .ceilToDouble()),
+            paint);
+      }
+    }
+    paint.color = Colors.black;
+    paint.style = PaintingStyle.stroke;
+    paint.strokeWidth = 1.5;
+    for (int i = 0; i < nodesX; i++) {
+      for (int j = 0; j < nodesY; j++) {
         canvas.drawRect(
             Rect.fromLTRB(
                 CanvasSizeUtil.getAxisX(
@@ -103,105 +123,150 @@ class TableVisState extends State<TableVis> {
 
   TableVisState(this.name, this.activity);
 
-  Future<void> _launchDialog(String color) async {
+  Future<void> _launchDialog(List<Node> nodes, int width, int height) async {
     return showDialog<void>(
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) {
-          RunningJob runningJob;
-          activity.runningJobs.forEach((job) {
-            if (job.color == color) runningJob = job;
+          // Find all of our running jobs based on the nodes provided
+          List<RunningJob> runningJobs = [];
+          nodes.forEach((node) {
+            var index = activity.runningJobs
+                .indexWhere((job) => job.jobid == node.jobid);
+            if (index > 0 && index < activity.runningJobs.length) {
+              runningJobs.add(activity.runningJobs[index]);
+            }
           });
-          if (runningJob == null)
-            return AlertDialog(title: Text('Missing Job'), actions: <Widget>[
+          runningJobs = runningJobs.toSet().toList();
+          if (runningJobs.isEmpty)
+            return AlertDialog(title: Text('No Jobs'), actions: <Widget>[
               FlatButton(
                   child: Text('Close'),
                   onPressed: () {
                     Navigator.of(context).pop();
                   })
             ]);
-          return AlertDialog(
-              title: Text(runningJob.project),
-              content: SingleChildScrollView(
-                child: Column(children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text("JobID: "),
-                      Text(
-                        runningJob.jobid.toString(),
-                        softWrap: true,
-                      ),
-                    ],
+          List<Widget> widgetList = [];
+          runningJobs.forEach((runningJob) {
+            widgetList.addAll([
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("JobID: "),
+                  Text(
+                    runningJob.jobid.toString(),
+                    softWrap: true,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text("Color: "),
-                      Container(
-                        padding: EdgeInsets.all(0),
-                        margin: EdgeInsets.all(0),
-                        child: Card(
-                          color: parseColor(color),
-                          margin: EdgeInsets.all(0),
-                        ),
-                        width: 100,
-                        height: 20,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text("Queue: "),
-                      Text(
-                        runningJob.queue.toString(),
-                        softWrap: true,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text("Run Time: "),
-                      Text(
-                        runningJob.runtimef.toString(),
-                        softWrap: true,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text("Wall Time: "),
-                      Text(
-                        runningJob.walltimef.toString(),
-                        softWrap: true,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text("Nodes Used: "),
-                      Text(
-                        runningJob.nodes.toString(),
-                        softWrap: true,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text("Mode: "),
-                      Text(
-                        runningJob.mode.toString(),
-                        softWrap: true,
-                      ),
-                    ],
-                  ),
-                ]),
+                ],
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Project: "),
+                  Text(
+                    runningJob.project.toString(),
+                    softWrap: true,
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Color: "),
+                  Container(
+                    padding: EdgeInsets.all(0),
+                    margin: EdgeInsets.all(0),
+                    child: Card(
+                      color: parseColor(runningJob.color),
+                      margin: EdgeInsets.all(0),
+                    ),
+                    width: 100,
+                    height: 20,
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Queue: "),
+                  Text(
+                    runningJob.queue.toString(),
+                    softWrap: true,
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Run Time: "),
+                  Text(
+                    runningJob.runtimef.toString(),
+                    softWrap: true,
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Wall Time: "),
+                  Text(
+                    runningJob.walltimef.toString(),
+                    softWrap: true,
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Nodes Used: "),
+                  Text(
+                    runningJob.nodes.toString(),
+                    softWrap: true,
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Mode: "),
+                  Text(
+                    runningJob.mode.toString(),
+                    softWrap: true,
+                  ),
+                ],
+              ),
+              Divider(),
+            ]);
+          });
+          return AlertDialog(
+              title: Text("Rack Job View"),
+              content: Builder(builder: (context) {
+                var screenHeight = MediaQuery.of(context).size.height;
+                var screenWidth = MediaQuery.of(context).size.width;
+                return Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          // alignment: Alignment.centerLeft
+                          child: CustomPaint(
+                            painter: RackPainter(width, height, nodes),
+                          ),
+                          width: (screenWidth < screenHeight)
+                              ? screenWidth * .2
+                              : screenHeight / 8,
+                          height: screenHeight / 2,
+                        ),
+                        Container(
+                            // alignment: Alignment.center,
+                            child: SingleChildScrollView(
+                                child: Column(children: widgetList)),
+                            width: screenWidth * .5)
+                      ],
+                    ),
+                    width: screenWidth * .8);
+              }),
               actions: <Widget>[
                 FlatButton(
                     child: Text('Close'),
@@ -239,7 +304,7 @@ class TableVisState extends State<TableVis> {
     // Go through all the nodes and fill in unused nodes with a blank node object
     for (int i = 0; i < 4608; i++) {
       if (nodes[i] == null) {
-        nodes[i] = Node(i.toString(), 0, "#888888");
+        nodes[i] = Node(i.toString(), 0, "#BBBBBB");
       }
     }
 
@@ -332,8 +397,8 @@ class TableVisState extends State<TableVis> {
           children: widgetList,
         )))),
         height: (MediaQuery.of(context).orientation == Orientation.portrait)
-            ? (MediaQuery.of(context).size.width / 2 - 24) + 100
-            : MediaQuery.of(context).size.height,
+            ? (MediaQuery.of(context).size.width / 2)
+            : MediaQuery.of(context).size.height - 124,
       )
     ]);
   }
@@ -364,14 +429,18 @@ class TableVisState extends State<TableVis> {
       arrangedList.insertAll(i * 8 + 4, columns[1][i]);
     }
 
-    return Container(
-      width: (MediaQuery.of(context).size.width / 12 - 3),
-      height: (MediaQuery.of(context).size.width / 6),
-      padding: EdgeInsets.all(4),
-      child: CustomPaint(
-        painter: RackPainter(8, 24, arrangedList),
-      ),
-    );
+    return InkWell(
+        onTap: () => {_launchDialog(nodeList, 8, 24)},
+        child: Container(
+          width: (MediaQuery.of(context).size.width / 12 - 3),
+          height: (MediaQuery.of(context).orientation == Orientation.portrait)
+              ? (MediaQuery.of(context).size.width / 4 - 18)
+              : MediaQuery.of(context).size.height / 2 - 80,
+          padding: EdgeInsets.all(4),
+          child: CustomPaint(
+            painter: RackPainter(8, 24, arrangedList),
+          ),
+        ));
   }
 
   /// Map vis for Cooley
@@ -391,90 +460,50 @@ class TableVisState extends State<TableVis> {
     // Add row visualizations
     for (int i = 0; i < 6; i++) {
       widgetList.add(Container(
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.all(1),
         child: Column(children: [
           Container(
             child: Text(
               "Rack $i",
-              textScaleFactor: 1.2,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 8),
             ),
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.all(1),
           ),
-          _cooleyRack(nodes.sublist(i * 21, (i + 1) * 21),
-              MediaQuery.of(context).orientation),
+          _cooleyRack(nodes.sublist(i * 21, (i + 1) * 21)),
         ]),
       ));
     }
-    return Container(
-      child: PageView.builder(
-          pageSnapping: false,
-          itemCount:
-              (MediaQuery.of(context).orientation == Orientation.portrait)
-                  ? 3
-                  : 2,
-          itemBuilder: (context, j) {
-            if (MediaQuery.of(context).orientation == Orientation.portrait) {
-              if (j < 2) {
-                return Row(
-                  children: [
-                    _cooleyRack(nodes.sublist(j * 21, (j + 1) * 21),
-                        MediaQuery.of(context).orientation),
-                    _cooleyRack(nodes.sublist((j + 1) * 21, ((j + 1) + 1) * 21),
-                        MediaQuery.of(context).orientation),
-                    _cooleyRack(nodes.sublist((j + 2) * 21, ((j + 2) + 1) * 21),
-                        MediaQuery.of(context).orientation),
-                  ],
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                );
-              } else {
-                return null;
-              }
-            } else {
-              if (j == 0) {
-                return Row(
-                  children: [
-                    _cooleyRack(nodes.sublist(j * 21, (j + 1) * 21),
-                        MediaQuery.of(context).orientation),
-                    _cooleyRack(nodes.sublist((j + 1) * 21, ((j + 1) + 1) * 21),
-                        MediaQuery.of(context).orientation),
-                    _cooleyRack(nodes.sublist((j + 2) * 21, ((j + 2) + 1) * 21),
-                        MediaQuery.of(context).orientation),
-                    _cooleyRack(nodes.sublist((j + 3) * 21, ((j + 3) + 1) * 21),
-                        MediaQuery.of(context).orientation),
-                    _cooleyRack(nodes.sublist((j + 4) * 21, ((j + 4) + 1) * 21),
-                        MediaQuery.of(context).orientation),
-                    _cooleyRack(nodes.sublist((j + 5) * 21, ((j + 5) + 1) * 21),
-                        MediaQuery.of(context).orientation),
-                  ],
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                );
-              } else {
-                return null;
-              }
-            }
-          }),
-      height: MediaQuery.of(context).orientation == Orientation.portrait
-          ? (MediaQuery.of(context).size.width - 48) * .75
-          : (MediaQuery.of(context).size.width / 2 - 24) * .75,
-    );
+    return Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+      Container(
+        child: ClipRect(
+            child: PhotoView.customChild(
+                child: Container(
+                    child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: widgetList,
+        )))),
+        height: (MediaQuery.of(context).orientation == Orientation.portrait)
+            ? (MediaQuery.of(context).size.width / 2)
+            : MediaQuery.of(context).size.height - 112,
+      )
+    ]);
   }
 
   /// Rack visualization for Cooley
-  _cooleyRack(List nodes, orientation) {
-    return Container(
-      width: orientation == Orientation.portrait
-          ? (MediaQuery.of(context).size.width / 3 - 24)
-          : (MediaQuery.of(context).size.width / 6 - 24),
-      height: orientation == Orientation.portrait
-          ? (MediaQuery.of(context).size.width - 48)
-          : (MediaQuery.of(context).size.width - 48),
-      padding: EdgeInsets.all(4),
-      child: CustomPaint(
-        painter: RackPainter(3, 7, nodes),
+  _cooleyRack(List nodes) {
+    return InkWell(
+      child: Container(
+        width: (MediaQuery.of(context).size.width / 6 - 12),
+        height: (MediaQuery.of(context).orientation == Orientation.portrait)
+            ? (MediaQuery.of(context).size.width / 2 - 24)
+            : MediaQuery.of(context).size.height - 124,
+        padding: EdgeInsets.all(4),
+        child: CustomPaint(
+          painter: RackPainter(3, 7, nodes),
+        ),
       ),
+      onTap: () => _launchDialog(nodes, 3, 7),
     );
   }
 }

@@ -35,17 +35,24 @@ Future<Activity> fetchActivity(String machine) async {
 Future<Activity> fetchActivityDummy(String machine) async {
   final response = await http.get(
       'https://status.alcf.anl.gov/${machine.toLowerCase()}/activity.json');
+  var nodeinfo = Map<String, dynamic>();
+  for (int i = 1; i <= 126; i++) {
+    nodeinfo[i.toString()] = {
+      "id": i.toString(),
+      "state": "allocated",
+      "color": "#aaaaaa",
+      "jobid": 1
+    };
+  }
   return Activity.fromJson({
     "dimensions": {
-      "midplanes": 2,
-      "nodecards": 16,
-      "racks": 2,
-      "rows": 2,
-      "subdivisions": 2
+      "midplanes": 1,
+      "nodecards": 21,
+      "racks": 6,
+      "rows": 1,
+      "subdivisions": 1
     },
-    "nodeinfo": {
-      "1": {"id": "001", "state": "fake", "color": "#aaaaaa"}
-    },
+    "nodeinfo": nodeinfo,
     "queued": [
       {
         "jobid": 1,
@@ -68,7 +75,7 @@ Future<Activity> fetchActivityDummy(String machine) async {
         "jobid": 1,
         "location": 1,
         "mode": "fake",
-        "nodes": 1,
+        "nodes": 126,
         "project": "AOTM",
         "queue": "fake",
         "runtimef": "1",

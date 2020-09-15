@@ -38,7 +38,7 @@ class StatusState extends State<Status> {
   Future<void> updateStatus() async {
     try {
       Activity newActivity = await fetchActivity(name);
-//      Activity newActivity = await fetchActivityDummy(name);
+      // Activity newActivity = await fetchActivityDummy(name);
       var coreHours = 0.0;
       newActivity.queuedJobs.forEach((job) => {
             coreHours += job.walltime / 60 / 60 * job.nodes * coresPerNode[name]
@@ -60,7 +60,7 @@ class StatusState extends State<Status> {
   Widget build(BuildContext context) {
     return FutureBuilder<Activity>(
         future: fetchActivity(name),
-//        future: fetchActivityDummy(name),
+//         future: fetchActivityDummy(name),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             activity = snapshot.data;
