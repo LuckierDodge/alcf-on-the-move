@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:splashscreen/splashscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'swatch.dart';
@@ -21,7 +22,6 @@ void main() => runApp(new MaterialApp(
         dialogBackgroundColor: ALCFSwatch['Black'].materialColor,
         brightness: Brightness.dark)));
 
-//
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => new _MyAppState();
@@ -38,7 +38,7 @@ class _MyAppState extends State<MyApp> {
         print("onMessage: $message");
 //        _showItemDialog(message);
       },
-      onBackgroundMessage: myBackgroundMessageHandler,
+      onBackgroundMessage: backgroundMessageHandler,
       onLaunch: (Map<String, dynamic> message) async {
         print("onLaunch: $message");
 //        _navigateToItemDetail(message);
@@ -61,6 +61,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
+  // TODO
   _checkInitialSetup() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getKeys().isEmpty) {
@@ -78,15 +79,17 @@ class _MyAppState extends State<MyApp> {
 }
 
 // TODO
-Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
+Future<dynamic> backgroundMessageHandler(Map<String, dynamic> message) {
   if (message.containsKey('data')) {
     // Handle data message
     final dynamic data = message['data'];
+    print(data);
   }
 
   if (message.containsKey('notification')) {
     // Handle notification message
     final dynamic notification = message['notification'];
+    print(notification);
   }
 
   // Or do other work.
