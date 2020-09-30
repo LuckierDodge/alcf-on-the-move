@@ -1,11 +1,13 @@
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'newspage.dart';
 import 'settings.dart';
 import 'status.dart';
 import 'utils.dart';
+import 'dart:async';
 
 /// Dashboard
 ///
@@ -24,6 +26,7 @@ class _DashboardState extends State<Dashboard> {
   List<Widget> machineStatuses = [];
   final String title;
   String updatedTime;
+  Timer timer;
   ConnectivityResult connectivity = ConnectivityResult.none;
   _DashboardState(this.title);
 
@@ -34,6 +37,23 @@ class _DashboardState extends State<Dashboard> {
     _checkConnectivity();
     updatedTime = getTime();
     machineStatuses = _getMachineStatuses();
+    _startTimer();
+  }
+
+  _startTimer() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool("refreshToggle") && prefs.getInt("refreshInterval") > 0) {
+      timer = Timer.periodic(
+          new Duration(seconds: prefs.getInt("refreshInterval")), (timer) {
+        _refreshStatus();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
   }
 
   /// Builds the widget, complete with Connectivity checking wrapper

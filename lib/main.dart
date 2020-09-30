@@ -4,6 +4,7 @@ import 'package:splashscreen/splashscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'swatch.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'notifications.dart';
 
 import 'dashboard.dart';
 
@@ -29,24 +30,14 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-
   @override
   Widget build(BuildContext context) {
     // TODO
     _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        print("onMessage: $message");
-//        _showItemDialog(message);
-      },
+      onMessage: messageHandler,
       onBackgroundMessage: backgroundMessageHandler,
-      onLaunch: (Map<String, dynamic> message) async {
-        print("onLaunch: $message");
-//        _navigateToItemDetail(message);
-      },
-      onResume: (Map<String, dynamic> message) async {
-        print("onResume: $message");
-//        _navigateToItemDetail(message);
-      },
+      onLaunch: onLaunchHandler,
+      onResume: onResumeHandler,
     );
 
     _checkInitialSetup();
@@ -63,35 +54,20 @@ class _MyAppState extends State<MyApp> {
 
   // TODO
   _checkInitialSetup() async {
+    _firebaseMessaging.requestNotificationPermissions();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getKeys().isEmpty) {
-//      prefs.setStringList("runningJobHeaders", [
-//        "Job ID",
-//        "Project",
-//        "Run Time",
-//        "Wall Time",
-//        "Nodes",
-//        "Mode",
-//        "Location",
-//      ]);
+      prefs.setStringList("runningJobHeaders", [
+        "Job ID",
+        "Project",
+        "Run Time",
+        "Wall Time",
+        "Nodes",
+        "Mode",
+        "Location",
+      ]);
+      prefs.setBool("refreshToggle", true);
+      prefs.setInt("refreshInterval", 60);
     }
   }
-}
-
-// TODO
-Future<dynamic> backgroundMessageHandler(Map<String, dynamic> message) {
-  if (message.containsKey('data')) {
-    // Handle data message
-    final dynamic data = message['data'];
-    print(data);
-  }
-
-  if (message.containsKey('notification')) {
-    // Handle notification message
-    final dynamic notification = message['notification'];
-    print(notification);
-  }
-
-  // Or do other work.
-  return null;
 }

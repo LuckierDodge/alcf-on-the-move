@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'activity.dart';
 import 'joblist.dart';
@@ -10,6 +11,7 @@ import 'tablevisualization.dart';
 import 'utils.dart';
 import 'settings.dart';
 import 'swatch.dart';
+import 'dart:async';
 
 /// Status
 ///
@@ -30,6 +32,7 @@ class StatusPageState extends State<StatusPage> {
   int nodesUsed = 0;
   int nodesTotal = 0;
   String updatedTime;
+  Timer timer;
   ConnectivityResult connectivity = ConnectivityResult.none;
   // Key used to update the Circular Charts
   final GlobalKey<AnimatedCircularChartState> _chartKey =
@@ -43,6 +46,23 @@ class StatusPageState extends State<StatusPage> {
     super.initState();
     _checkConnectivity();
     updatedTime = getTime();
+    _startTimer();
+  }
+
+  _startTimer() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool("refreshToggle") && prefs.getInt("refreshInterval") > 0) {
+      timer = Timer.periodic(
+          new Duration(seconds: prefs.getInt("refreshInterval")), (timer) {
+        _refreshStatus();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
   }
 
   /// Grabs the latest activity data from status.alcf.anl.gov
@@ -58,7 +78,8 @@ class StatusPageState extends State<StatusPage> {
         activity = newActivity;
         _calculateNodesUsed();
         coreHoursScheduled = coreHours;
-        _chartKey.currentState.updateData(_updateUsageData());
+        var updatedUsageData = _updateUsageData();
+        _chartKey.currentState.updateData(updatedUsageData);
       });
     } catch (exception) {
       throw Exception(
